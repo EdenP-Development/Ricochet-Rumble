@@ -1,5 +1,7 @@
 # EdenP Development transition audit — Sector Rebound
 
+> **Verified update 2026-11-24:** Ownership transfer now **COMPLETE**; the same repository ID `1434527636` is owned by `EdenP-Development` and GitHub connector read/write/admin verified. Historical pre-transfer inventory below is preserved as a timestamped audit, not the current transfer status. The owner authorized a **new separate private beta key**, locally certificate/signing/recovery verified; organization Secrets and trusted CI preflight still await completion. See [beta signer setup](SECTOR_REBOUND_BETA_SIGNING_SETUP_2026-11-24.md) and [live handoff](../CONTINUE_HERE.md).
+
 **Audit date:** 2026-11-24. **Scope:** live GitHub repository, M13-F development head, public standards hub and current signing/configuration. **This is an organizational handoff; it does not promote game code or publish an APK.**
 
 ## Ownership and continuity
