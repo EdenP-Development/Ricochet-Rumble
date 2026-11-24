@@ -151,7 +151,7 @@ jobs:
           "$signer" verify --min-sdk-version 26 --print-certs "$baseline" > "$RUNNER_TEMP/sr-m13-baseline-cert.txt"
           "$signer" verify --min-sdk-version 26 --print-certs "$compare" > "$RUNNER_TEMP/sr-m13-compare-cert.txt"
           get_cert() {
-            sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([a-fA-F0-9:]+).*$/\\1/p' "$1" | tr -d ':' | tr '[:upper:]' '[:lower:]'
+            sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([a-fA-F0-9:]+).*$/\1/p' "$1" | tr -d ':' | tr '[:upper:]' '[:lower:]'
           }
           a_cert="$(get_cert "$RUNNER_TEMP/sr-m13-baseline-cert.txt")"
           b_cert="$(get_cert "$RUNNER_TEMP/sr-m13-compare-cert.txt")"
