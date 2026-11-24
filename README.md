@@ -1,5 +1,8 @@
 # Sector Rebound
 
+> **EdenP Development transition (2026-11-24):** The verified project [handoff and next action](CONTINUE_HERE.md) and [migration/signing audit](docs/EDENP_TRANSITION_AUDIT_2026-11-24.md) take precedence for ownership and the latest **unmerged M13-F** test work. [Shared standards](https://github.com/EdenP-Development/Eden-Development-Standards). This repository is still awaiting transfer from `PlayerEden` to `EdenP-Development`. The `main` game, accepted camera/AI, current internal preview identity and saves remain unchanged. M13-F's 40-KO/6-minute TDM is an isolated **draft**, not in `main` or a published beta.
+
+
 **Android-first, offline-capable tactical arcade ricochet shooter.** Pilot, tank and mech combat in procedural mazes, solo survival, scored matches, Custom Match and experimental same-Wi-Fi multiplayer. Original FIELDGRID interface, physical bank shots and cosmetic-only offline progress.
 
 > **One active game: [`main`](https://github.com/PlayerEden/Ricochet-Rumble/tree/main).** Earlier branches, experimental PRs, APKs and checkpoints are historical recovery/research, **not separate games to maintain**. Work moves from a small tested feature branch into `main` through CI, not into a parallel permanent build. Git history and the [archive index](docs/ARCHIVE_INDEX.md) retain older verified source without cluttering this page.
