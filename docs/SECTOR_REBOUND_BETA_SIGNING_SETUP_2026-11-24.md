@@ -1,6 +1,6 @@
 # Sector Rebound — Private itch.io beta signing setup
 
-**Verified locally:** November 24, 2026. **CI sign verification:** PENDING four organization secrets and a trusted-main workflow run. **No public Sector Rebound release authorized.**
+**Verified:** November 24, 2026. **CI sign verification: PASSED** using all four organization secrets in [trusted-main run #45491161871](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45491161871), source `0c48be6ca5402a3373f63d79207fbd0b097f624e`. Certificate fingerprint and real private-key signature both passed. **Independent owner backup custody, real beta APK signing/upgrade and publication remain pending; no public release authorized.**
 
 ## Why a new key was created
 
@@ -22,7 +22,7 @@ These existing identities **must not be changed or overwritten**. The new key do
 | Local keytool certificate export | **PASS** |
 | Local private-key `jarsigner` operation | **PASS** |
 | Independently encrypted GPG recovery copy / round-trip | **PASS**; owner backup custody **not yet confirmed** |
-| GitHub Secrets existence / scope / original key operation | **PENDING** owner entering four values, then CI |
+| GitHub Secrets / original key operation | **PASS** trusted-main GitHub Actions run #45491161871 using all four values. Exclusive org secret repository scope should still be checked in owner settings |
 | Beta Android app packaging / real beta APK / install-over | **NOT IMPLEMENTED, NOT VERIFIED** |
 | itch.io publication | **NOT PUBLISHED** |
 
