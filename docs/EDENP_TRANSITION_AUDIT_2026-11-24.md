@@ -2,6 +2,8 @@
 
 > **Verified update 2026-11-24:** Ownership transfer now **COMPLETE**; the same repository ID `1434527636` is owned by `EdenP-Development` and GitHub connector read/write/admin verified. Historical pre-transfer inventory below is preserved as a timestamped audit, not the current transfer status. The owner authorized a **new separate private beta key**, locally certificate/signing/recovery verified; organization Secrets and trusted CI preflight still await completion. See [beta signer setup](SECTOR_REBOUND_BETA_SIGNING_SETUP_2026-11-24.md) and [live handoff](../CONTINUE_HERE.md).
 
+**Post-transfer CI update:** [M13-F exact-source workflow #42293103785, attempt 2](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/42293103785) **PASS** after transfer; [new temporary Android APK/QA artifact #14965381933](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/42293103785/artifacts/14965381933). The older expired-artifact statement below describes the **pre-rerun** audit. This passing debug APK does not verify the newly generated private beta key; that requires the separate trusted-main signer preflight after secret entry.
+
 **Audit date:** 2026-11-24. **Scope:** live GitHub repository, M13-F development head, public standards hub and current signing/configuration. **This is an organizational handoff; it does not promote game code or publish an APK.**
 
 ## Ownership and continuity
