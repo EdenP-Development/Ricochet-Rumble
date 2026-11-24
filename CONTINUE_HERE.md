@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **Latest engineering update — 2026-11-24:** Same-source paired Android A/B APK build **PASSED** in [workflow #45493398975](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45493398975), exact test source `73ae26903f780381b274b2b9da6e51a96461fffe`. [Artifact #14968430435](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45493398975/artifacts/14968430435) contains **both** `SR-M13-Unified-30KO-Baseline-Test.apk` and `SR-M13-Compare-Test.apk` with paired verification, QA evidence and hashes. [Draft PR #150](https://github.com/EdenP-Development/Ricochet-Rumble/pull/150) changes **only** the M13-F Android CI workflow and comparison QA documentation; it is based on the M13-F draft and **NOT** merged to `main`. The 30 KOs / 5 min and 40 KOs / 6 min apps use the same game/asset sources and distinct packages, disposable debug signatures. Physical three-match-per-condition owner testing, two-phone LAN and release acceptance are still **PENDING**. The new Sector Rebound private beta signer passed actual [GitHub Actions preflight #45491161871](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45491161871); no public beta APK or itch.io release has been published.
+
+
 **Checked against live GitHub: 2026-11-24.** This is the short durable handoff for a new developer, Codex session or ChatGPT conversation. Read it before deciding that an old draft or temporary artifact is a current public release.
 
 ## Canonical ownership and source
