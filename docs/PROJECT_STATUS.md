@@ -1,5 +1,8 @@
 # Sector Rebound — Current Project Status
 
+> **2026-11-24 organizational/status addendum:** For new work, first read [CONTINUE_HERE](../CONTINUE_HERE.md) and [EdenP transition audit](EDENP_TRANSITION_AUDIT_2026-11-24.md). `main` remains the accepted runtime and M13-F [draft PR #147](https://github.com/PlayerEden/Ricochet-Rumble/pull/147) is the latest **unmerged** Android/Chromium-tested Solo TDM 40-KO/6-minute comparator. Its Actions artifact has expired; a fresh isolated build is needed for physical A/B. The owner-preview `.preview` code 420001 uses a **public** AOSP test signer, not a private beta key. Repo ownership transfer and physical phone/LAN/update signing remain open. Shared standards: https://github.com/EdenP-Development/Eden-Development-Standards. The November 3 history below is preserved deliberately, not a claim that M13-F has merged.
+
+
 **Updated:** November 3, 2026 (M10 cutout-safe combat HUD merged; M6–M10 source QA complete) · **Single active source of truth: [`main`](https://github.com/PlayerEden/Ricochet-Rumble/tree/main).** No alternate game branches to maintain. Historical drafts, source checkpoints, older APKs and PR discussions remain available in the [archive index](ARCHIVE_INDEX.md); they do **not** need to be merged or rebuilt again. [Previous longer status and its exact provenance](https://github.com/PlayerEden/Ricochet-Rumble/blob/2bdd4285b1e403da06cc8c1f89937de5529a1928/docs/PROJECT_STATUS.md).
 
 ## Locked / owner-approved for now
