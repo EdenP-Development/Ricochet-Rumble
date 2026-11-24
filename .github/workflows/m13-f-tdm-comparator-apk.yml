@@ -9,6 +9,7 @@ on:
       - 'tests/m13-f-*.mjs'
       - '.github/workflows/m13-f-tdm-comparator-apk.yml'
       - 'docs/M13_F_*'
+      - 'docs/M13_F_PAIRED_*'
   workflow_dispatch:
 permissions:
   contents: read
@@ -129,7 +130,79 @@ jobs:
             echo "M13_SOURCE_PRS_141_AND_143_REMAIN_SEPARATE_AND_UNMERGED"
           } > dist/verification.txt
           echo M13_F_COMPARATOR_ANDROID_APK_PASS
-      - name: Upload inspectable evidence and isolated APK
+      - name: Build matched 30-KO baseline from SAME M13-F source (second isolated APK)
+        working-directory: android
+        run: |
+          set -euo pipefail
+          # Build the earlier M13-C flag set from the same commit and compiled
+          # Pixi/menu assets as the 40-KO comparison binary. No game changes.
+          sed -i 's/android:label="SR M13 Compare"/android:label="SR M13 Unified"/' app/src/main/AndroidManifest.xml
+          grep -F 'android:label="SR M13 Unified"' app/src/main/AndroidManifest.xml
+          # Fail closed against Gradle incremental reuse from the other package.
+          gradle --no-daemon clean :app:assembleDebug -PsrM13FusionPackage=true
+      - name: Verify baseline identity, baseline flags, distinct package, identical bundled game and matching signer
+        run: |
+          set -euo pipefail
+          baseline=android/app/build/outputs/apk/debug/app-debug.apk
+          compare=dist/SR-M13-Compare-Test.apk
+          test -s "$baseline" && test -s "$compare"
+          aapt="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          signer="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$signer" verify --min-sdk-version 26 --print-certs "$baseline" > "$RUNNER_TEMP/sr-m13-baseline-cert.txt"
+          "$signer" verify --min-sdk-version 26 --print-certs "$compare" > "$RUNNER_TEMP/sr-m13-compare-cert.txt"
+          get_cert() {
+            sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([a-fA-F0-9:]+).*$/\1/p' "$1" | tr -d ':' | tr '[:upper:]' '[:lower:]'
+          }
+          a_cert="$(get_cert "$RUNNER_TEMP/sr-m13-baseline-cert.txt")"
+          b_cert="$(get_cert "$RUNNER_TEMP/sr-m13-compare-cert.txt")"
+          [[ "$a_cert" =~ ^[a-f0-9]{64}$ && "$a_cert" == "$b_cert" ]] || { echo 'Paired CI APK signer mismatch'; exit 1; }
+          "$aapt" dump badging "$baseline" | grep -F "name='com.playereden.ricochetrumble.m13fusion'"
+          "$aapt" dump badging "$baseline" | grep -F "application-label:'SR M13 Unified'"
+          "$aapt" dump badging "$compare" | grep -F "name='com.playereden.ricochetrumble.m13compare'"
+          "$aapt" dump badging "$compare" | grep -F "application-label:'SR M13 Compare'"
+          for file in game.js index.html style.css scored-match.js dossier.js save-backup.js; do
+            cmp "web/$file" <(unzip -p "$baseline" "assets/$file")
+            cmp <(unzip -p "$baseline" "assets/$file") <(unzip -p "$compare" "assets/$file")
+          done
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$baseline"
+          python3 - "$baseline" "$compare" <<'PY'
+          import sys,zipfile
+          base,comp=sys.argv[1:]
+          with zipfile.ZipFile(base) as a,zipfile.ZipFile(comp) as b:
+              adex=[n for n in a.namelist() if n.startswith('classes') and n.endswith('.dex')]
+              bdex=[n for n in b.namelist() if n.startswith('classes') and n.endswith('.dex')]
+              assert adex and bdex
+              # Distinct Android WebView startup URLs gate the exact same game source:
+              # baseline is 30 KOs / 300 s; compare is 40 KOs / 360 s.
+              assert any(b'm13Preview=1&m13Pacing=1' in a.read(n) for n in adex)
+              # MainActivity bytecode necessarily includes both branches; the
+              # verified package suffix chooses the correct launch URL at runtime.
+              assert any(b'.m13fusion' in a.read(n) for n in adex)
+              assert any(b'm13Preview=1&m13Pacing=1&m13FCompare=1' in b.read(n) for n in bdex)
+              a_art=sorted(n for n in a.namelist() if n.startswith('assets/assets/m12/') and n.endswith('.svg'))
+              b_art=sorted(n for n in b.namelist() if n.startswith('assets/assets/m12/') and n.endswith('.svg'))
+              assert len(a_art)==12 and a_art==b_art
+              assert all(a.read(n)==b.read(n) for n in a_art),'Paired builds must have byte-identical approved artwork'
+          print('M13_F_MATCHED_SOURCE_ANDROID_AB_PACKAGING_PASS')
+          PY
+          mkdir -p dist
+          cp "$baseline" dist/SR-M13-Unified-30KO-Baseline-Test.apk
+          {
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "PAIRING=EXACT_SAME_GIT_COMMIT_EXACT_SAME_WEB_ASSETS"
+            echo "BASELINE_ID=com.playereden.ricochetrumble.m13fusion"
+            echo "BASELINE_RULES=SOLO_TDM30_300SEC"
+            echo "BASELINE_APK_SHA256=$(sha256sum dist/SR-M13-Unified-30KO-Baseline-Test.apk | cut -d' ' -f1)"
+            echo "COMPARE_ID=com.playereden.ricochetrumble.m13compare"
+            echo "COMPARE_RULES=SOLO_TDM40_360SEC"
+            echo "COMPARE_APK_SHA256=$(sha256sum "$compare" | cut -d' ' -f1)"
+            echo "PAIRED_PUBLIC_DEBUG_SIGNER_SHA256=$a_cert"
+            echo "SAME_SOURCE_ASSETS_AND_APPROVED_ART=true"
+            echo "NO_MAIN_OR_OWNER_PREVIEW_PACKAGE_CHANGED=true"
+            echo "EPHEMERAL_DEBUG_SIGNING_NOT_PUBLIC_BETA_AND_NOT_UPGRADE_SAFE=true"
+            echo "REAL_DEVICE_RESULT=NOT_YET_TESTED"
+          } > dist/paired-verification.txt
+      - name: Upload inspectable evidence and paired isolated APKs
         if: always()
         uses: actions/upload-artifact@v4
         with:
