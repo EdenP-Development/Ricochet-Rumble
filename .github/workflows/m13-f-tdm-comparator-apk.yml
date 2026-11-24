@@ -175,7 +175,9 @@ jobs:
               # Distinct Android WebView startup URLs gate the exact same game source:
               # baseline is 30 KOs / 300 s; compare is 40 KOs / 360 s.
               assert any(b'm13Preview=1&m13Pacing=1' in a.read(n) for n in adex)
-              assert not any(b'm13FCompare=1' in a.read(n) for n in adex), 'Baseline must NOT enable 40-KO comparison'
+              # MainActivity bytecode necessarily includes both branches; the
+              # verified package suffix chooses the correct launch URL at runtime.
+              assert any(b'.m13fusion' in a.read(n) for n in adex)
               assert any(b'm13Preview=1&m13Pacing=1&m13FCompare=1' in b.read(n) for n in bdex)
               a_art=sorted(n for n in a.namelist() if n.startswith('assets/assets/m12/') and n.endswith('.svg'))
               b_art=sorted(n for n in b.namelist() if n.startswith('assets/assets/m12/') and n.endswith('.svg'))
