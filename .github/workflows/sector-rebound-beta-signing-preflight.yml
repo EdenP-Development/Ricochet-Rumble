@@ -1,0 +1,37 @@
+name: Sector Rebound - private beta signing certificate preflight
+# Trusted main only. No keys, signed previews or release APK artifacts uploaded.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/signing/SECTOR_REBOUND_BETA_PREFLIGHT_TRIGGER.md'
+permissions:
+  contents: read
+concurrency:
+  group: sr-beta-private-cert-preflight
+  cancel-in-progress: false
+jobs:
+  verify-beta-certificate:
+    if: github.repository == 'EdenP-Development/Ricochet-Rumble' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout trusted reviewed main without writable token
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Java signer tools
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify original beta certificate and perform actual private-key signature
+        env:
+          SECTOR_REBOUND_BETA_KEYSTORE_BASE64: ${{ secrets.SECTOR_REBOUND_BETA_KEYSTORE_BASE64 }}
+          SECTOR_REBOUND_BETA_KEYSTORE_PASSWORD: ${{ secrets.SECTOR_REBOUND_BETA_KEYSTORE_PASSWORD }}
+          SECTOR_REBOUND_BETA_KEY_ALIAS: ${{ secrets.SECTOR_REBOUND_BETA_KEY_ALIAS }}
+          SECTOR_REBOUND_BETA_KEY_PASSWORD: ${{ secrets.SECTOR_REBOUND_BETA_KEY_PASSWORD }}
+        shell: bash
+        run: bash tools/verify-sector-rebound-beta-signer.sh
