@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **B1-R6 2026-11-25 — Dossier candidate and QA committed:** [Draft PR #165](https://github.com/EdenP-Development/Ricochet-Rumble/pull/165), exact head `69edc904bafd104ec28b69ff2beb2976ecce316f`, stacked on #164. R5 exact head `5c736e8f76ba8f628c636dc867d1b910eb29c0d9` passed [workflow #45582421297](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45582421297). R6 restores the intended steel emblem treatment in the higher-specificity header and adds restrained record/stat panel highlights. Web/Android mirrors, no gameplay or progression changes. R6 five-size A/B and Android QA committed, results pending. Owner requests one overall phone review after refinement. Next verify R6, then R7 multiplayer interface. No merges or public beta.
+
+
 > **B1-R5 2026-11-25 — Hangar candidate + dedicated QA committed:** [Draft PR #164](https://github.com/EdenP-Development/Ricochet-Rumble/pull/164), exact head `5c736e8f76ba8f628c636dc867d1b910eb29c0d9`, stacked on R4 #162. R4 exact head `0f363a6c1bd717abf3b846d6c5cf6161d068031d` passed [workflow #45579399378](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45579399378). R5 changes five CSS declarations only: warm plate ambient light, frame, caption and footer materials; mirrored Android/Web, original art and gameplay preserved. R5 five-size browser A/B + Android QA workflow committed; results pending. Owner requested one overall phone test after refinements, not per-slice acceptance. Next verify R5 and proceed R6 Dossier/menu consistency; no merges or publication.
 
 
