@@ -2717,6 +2717,7 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 }
 .after-action .aa-rail{color:#a5c7cc;letter-spacing:.075em;border-bottom-color:#5c808b72}
 .after-action .aa-rail #aa-outcome{color:#f1c076;font-weight:900}
+.after-action.lost .aa-rail #aa-outcome{color:#f8bca2}
 .after-action h2{color:#f0f5f2;letter-spacing:.055em}
 .after-action.lost h2{color:#efb2a1}
 .after-action .aa-event{color:#bad1d5}
@@ -2729,10 +2730,10 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 .after-action .aa-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .after-action .aa-actions button{border-radius:4px;min-height:44px}
 .after-action .aa-actions .quick-rematch:not(.hidden){
- background:linear-gradient(#ffcf7e,#e9ab46);border-color:#ffe5aa;
- color:#291d0f;box-shadow:inset 0 1px 0 #fff7d5a0;
+ background:linear-gradient(180deg,#ffffff26,transparent 38%,#69430e19),linear-gradient(#ffcf7e,#e9ab46);border-color:#ffe5aa;
+ color:#291d0f;box-shadow:inset 0 1px 0 #fff7d5a0,0 2px 5px #0004;
 }
-.after-action .aa-actions #results-menu{background:#203943;border-color:#63808b}
+.after-action .aa-actions #results-menu{background:linear-gradient(180deg,#304b55,#203943);border-color:#63808b}
 .after-action .aa-note{color:#a4bfc6}
 @media(max-width:600px){.after-action .aa-rail span:last-child{display:inline-block}}
 @media(prefers-reduced-motion:reduce){.after-action button,.help-footer button{animation:none;transition:none}}
@@ -3623,8 +3624,8 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
    or rewards. Every value is the actual populated after-action output. */
 .after-action .aa-panel{
   width:min(650px,100%);border:1px solid #678994;border-top:3px solid #d8b16f;
-  border-radius:4px;background:linear-gradient(145deg,#25434f,#0f2633 83%);
-  box-shadow:0 25px 65px #000b;
+  border-radius:4px;background:linear-gradient(180deg,#b2d4df12,transparent 35%),linear-gradient(145deg,#25434f,#0f2633 83%);
+  box-shadow:inset 0 1px 0 #b2d4df22,0 25px 65px #000b;
 }
 .after-action .aa-rail{font-family:system-ui,sans-serif;font-size:clamp(9px,1vw,11px);letter-spacing:.03em}
 .after-action h2{
@@ -3634,7 +3635,7 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 .after-action .aa-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 .after-action .aa-stats>div{
   border:0;border-bottom:2px solid #5f88938a;border-radius:2px;
-  background:#0e2834af;min-width:0;
+  background:linear-gradient(180deg,#a9c7cd0d,transparent 45%),#0e2834;min-width:0;
 }
 .after-action .aa-stats>div:first-child{border-bottom-color:#8ed3ca}
 .after-action .aa-stats strong{font-variant-numeric:tabular-nums}
