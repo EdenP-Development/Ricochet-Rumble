@@ -8,6 +8,7 @@ on:
       - 'tests/spudacus-startup-contract.mjs'
       - '.github/workflows/spudacus-startup-qa.yml'
       - 'docs/SPUDACUS_STARTUP_*'
+      - 'docs/BETA1_SPUDACUS_*'
   workflow_dispatch:
 permissions:
   contents: read
