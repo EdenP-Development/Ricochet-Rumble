@@ -18,6 +18,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebSettings;
 import android.widget.Toast;
+import android.widget.FrameLayout;
 
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -44,6 +45,7 @@ public final class MainActivity extends Activity {
     private static final String SERVICE_TYPE = "_rrtank._tcp.";
     private static final int MAX_PACKET = 32768;
     private WebView web;
+    private StartupBrandingOverlay startupBranding;
     private NsdManager nsd;
     private NsdManager.RegistrationListener registration;
     private NsdManager.DiscoveryListener discovery;
@@ -80,13 +82,22 @@ public final class MainActivity extends Activity {
         });
         // JavaScript bridge is safe only because this WebView loads app-bundled assets.
         web.addJavascriptInterface(new GameBridge(), "AndroidBridge");
-        setContentView(web);
+        // Existing offline game continues loading underneath the skippable splash.
+        FrameLayout startupRoot = new FrameLayout(this);
+        startupRoot.addView(web, new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        setContentView(startupRoot);
         // Only the separate .hybridtest APK enables the Pixi menu by default.
         // The real game/owner preview retains its original URL and Canvas fallback.
         String initialPage = getPackageName().endsWith(".hybridtest")
             ? "file:///android_asset/index.html?hybridMenu=1"
             : "file:///android_asset/index.html";
         web.loadUrl(initialPage);
+        // Owner-approved standalone Spudacus intro at first cold Activity startup.
+        // Existing saves, LAN game identity and WebView initialization are unchanged.
+        if (savedInstanceState == null) {
+            startupBranding = StartupBrandingOverlay.attach(this, startupRoot);
+        }
     }
 
     private void enterImmersiveMode() {
@@ -423,6 +434,7 @@ public final class MainActivity extends Activity {
         }
     }
     @Override protected void onStop() {
+        if (startupBranding != null) startupBranding.skip();
         boolean wasHosting = isHosting;
         boolean wasConnected = connection != null;
         hostEndedInBackground = wasHosting;
@@ -432,8 +444,9 @@ public final class MainActivity extends Activity {
         if (wasConnected && !wasHosting) signalType("disconnected");
         super.onStop();
     }
-    @Override protected void onDestroy() { closeNetwork(); if (web != null) { web.removeJavascriptInterface("AndroidBridge"); web.destroy(); web = null; } super.onDestroy(); }
+    @Override protected void onDestroy() { if (startupBranding != null) startupBranding.skip(); closeNetwork(); if (web != null) { web.removeJavascriptInterface("AndroidBridge"); web.destroy(); web = null; } super.onDestroy(); }
     @Override public void onBackPressed() {
+        if (startupBranding != null && startupBranding.isVisible()) { startupBranding.skip(); return; }
         if (web != null) web.evaluateJavascript("window.RR && window.RR.openMenu && window.RR.openMenu()", null);
         else super.onBackPressed();
     }
