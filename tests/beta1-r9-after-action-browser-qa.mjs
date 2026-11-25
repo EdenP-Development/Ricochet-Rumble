@@ -100,29 +100,28 @@ const intersects=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&
  Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
 try{
  for(const [w,h] of sizes){
-  const ctx=await browser.newContext({viewport:{width:w,height:h}}),page=await ctx.newPage();
-  page.on('pageerror',e=>errors.push(w+'x'+h+' '+e.message));
-  await page.goto('http://127.0.0.1:'+srv.address().port,{waitUntil:'load'});
-  await page.waitForFunction(()=>!!window.__arcQa);
   const captures=[];
   for(const kind of ['baseline','candidate']){
    const states=[];
    for(const won of [true,false]){
+    // Separate storage for every outcome and variant: real rewards are earned only once.
+    const ctx=await browser.newContext({viewport:{width:w,height:h}}),page=await ctx.newPage();
+    page.on('pageerror',e=>errors.push(w+'x'+h+' '+e.message));
     await page.goto('http://127.0.0.1:'+srv.address().port+(kind==='baseline'?'/baseline.html':'/index.html'),{waitUntil:'load'});
     await page.waitForFunction(()=>!!window.__arcQa);
     const outcome=await page.evaluate(w=>window.__arcQa.finish(w),won);
     assert.equal(outcome,won?'VICTORY':'DEFEAT');
     assert.ok(await page.locator('#after-action').isVisible());
-    const data=await page.locator('#after-action').evaluate(el=>({values:['aa-title','aa-outcome','aa-kos','aa-deaths','aa-duration','aa-lives'].map(id=>document.getElementById(id).textContent),items:[...el.querySelectorAll('.aa-panel,.aa-stats>div,#aa-outcome,#quick-rematch,#results-menu')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {bg:s.backgroundImage,shadow:s.boxShadow,color:s.color,rect:[r.x,r.y,r.width,r.height]}})}));
+    const data=await page.locator('#after-action').evaluate(el=>({reward:{visible:!document.getElementById('aa-rewards').classList.contains('hidden'),text:document.getElementById('aa-rewards').textContent},values:['aa-title','aa-outcome','aa-kos','aa-deaths','aa-duration','aa-lives'].map(id=>document.getElementById(id).textContent),items:[...el.querySelectorAll('.aa-panel,.aa-stats>div,#aa-outcome,#quick-rematch,#results-menu')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {bg:s.backgroundImage,shadow:s.boxShadow,color:s.color,rect:[r.x,r.y,r.width,r.height]}})}));
     if(kind==='candidate'&&!won)assert.equal(await page.locator('#aa-outcome').evaluate(e=>getComputedStyle(e).color),'rgb(248, 188, 162)');
     await page.screenshot({path:output+'/'+kind+'-'+(won?'victory':'defeat')+'-'+w+'x'+h+'.png',animations:'disabled'});
     states.push(data);
+    await ctx.close();
    }
    captures.push(states);
   }
-  for(let i=0;i<2;i++){const [a,b]=captures.map(x=>x[i]);assert.deepEqual(a.values,b.values);assert.deepEqual(a.items.map(x=>x.rect),b.items.map(x=>x.rect));assert.notDeepEqual(a.items,b.items);}
+  for(let i=0;i<2;i++){const [a,b]=captures.map(x=>x[i]);assert.deepEqual(a.values,b.values);assert.deepEqual(a.reward,b.reward,'identical reward visibility and text');assert.deepEqual(a.items.map(x=>x.rect),b.items.map(x=>x.rect));assert.notDeepEqual(a.items,b.items);}
   results.push({viewport:w+'x'+h,captures});
-  await ctx.close();
  }
  assert.deepEqual(errors,[],'Browser exceptions');
  assert.deepEqual(missing,[],'All local app/asset URLs must resolve');
