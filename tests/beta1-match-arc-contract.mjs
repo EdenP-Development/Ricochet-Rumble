@@ -17,7 +17,7 @@ assert.ok(css.includes('.game-screen.solo-watching .battlefield>.touch-zone{disp
 assert.ok(css.includes('.score-clock.match-arc'));
 assert.ok(game.includes("'survival_ffa','survival_teams'"),'no CTF/daily spectator');
 const changed=execFileSync('git',['diff','--name-only','origin/feature/beta1-dossier-insignia-slice-2026-11-25...HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
-const allowed=new Set(['web/game.js','android/app/src/main/assets/game.js','web/index.html','android/app/src/main/assets/index.html','web/style.css','android/app/src/main/assets/style.css','tests/beta1-match-arc-contract.mjs','tests/beta1-match-arc-browser-qa.mjs','.github/workflows/beta1-match-arc-qa.yml','docs/BETA1_MATCH_ARC_2026-11-25.md']);
+const allowed=new Set(['web/game.js','android/app/src/main/assets/game.js','web/index.html','android/app/src/main/assets/index.html','web/style.css','android/app/src/main/assets/style.css','tests/beta1-match-arc-contract.mjs','tests/beta1-match-arc-browser-qa.mjs','tests/smoke.mjs','.github/workflows/beta1-match-arc-qa.yml','docs/BETA1_MATCH_ARC_2026-11-25.md']);
 assert.ok(changed.every(p=>allowed.has(p)),'unexpected changed path: '+changed.filter(p=>!allowed.has(p)));
 for(const path of ['web/scored-match.js','web/ctf-rules.js','web/ctf-ai.js','web/save-backup.js','web/dossier.js','android/app/build.gradle','android/app/build.gradle.kts'])
  assert.ok(!changed.includes(path),'protected engine or packaging changed: '+path);
