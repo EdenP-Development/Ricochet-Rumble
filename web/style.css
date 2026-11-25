@@ -4194,3 +4194,61 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* B1-03-C: exact owner-reviewed M13 insignia artwork, without an additional
+   game state or JavaScript sync layer. Actual equipped/locked truth comes from
+   the existing SVG <use href="#sr-mark-..."> and reward eligibility. */
+#menu .emblem-grid .emblem-symbol,
+#menu .insignia-detail-mark,
+#menu #dossier-emblem-mark{
+ background-color:#102632;
+ background-position:center;
+ background-size:contain;
+ background-repeat:no-repeat;
+ border:1px solid #6f9295;
+ border-radius:2px;
+}
+#menu .emblem-grid .emblem-symbol:has(use[href="#sr-mark-field"]),
+#menu .insignia-detail-mark:has(use[href="#sr-mark-field"]),
+#menu #dossier-emblem-mark:has(use[href="#sr-mark-field"]){
+ background-image:url("assets/m12/insignia-field-study-v1.svg");
+}
+#menu .emblem-grid .emblem-symbol:has(use[href="#sr-mark-vector"]),
+#menu .insignia-detail-mark:has(use[href="#sr-mark-vector"]),
+#menu #dossier-emblem-mark:has(use[href="#sr-mark-vector"]){
+ background-image:url("assets/m12/insignia-vector-study-v1.svg");
+}
+#menu .emblem-grid .emblem-symbol:has(use[href="#sr-mark-ace"]),
+#menu .insignia-detail-mark:has(use[href="#sr-mark-ace"]),
+#menu #dossier-emblem-mark:has(use[href="#sr-mark-ace"]){
+ background-image:url("assets/m12/insignia-ace-study-v1.svg");
+}
+#menu .emblem-grid .emblem-symbol:has(use[href="#sr-mark-command"]),
+#menu .insignia-detail-mark:has(use[href="#sr-mark-command"]),
+#menu #dossier-emblem-mark:has(use[href="#sr-mark-command"]){
+ background-image:url("assets/m12/insignia-command-study-v1.svg");
+}
+#menu .emblem-grid .emblem-symbol:has(use[href^="#sr-mark-"]) .sr-mark-icon,
+#menu .insignia-detail-mark:has(use[href^="#sr-mark-"]) .sr-mark-icon,
+#menu #dossier-emblem-mark:has(use[href^="#sr-mark-"]) .sr-mark-icon{
+ visibility:hidden;
+}
+/* The existing lock and selection state still defines truth. Avoid a bright
+   illustrated badge making an unearned option appear selectable. */
+#menu .emblem-grid button.locked .emblem-symbol,
+#menu .emblem-grid button:disabled .emblem-symbol{
+ filter:grayscale(.8);
+ opacity:.72;
+}
+#menu .emblem-grid button.selected .emblem-symbol{
+ border-color:#e4ba78;
+ box-shadow:inset 0 0 0 1px #dcb67d66;
+}
+@media(prefers-reduced-motion:reduce){
+ #menu .emblem-grid .emblem-symbol,
+ #menu .insignia-detail-mark,
+ #menu #dossier-emblem-mark{
+  animation:none!important;transition:none!important;
+ }
+}
