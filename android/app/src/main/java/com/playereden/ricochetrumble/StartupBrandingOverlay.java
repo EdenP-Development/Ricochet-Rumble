@@ -24,7 +24,7 @@ import java.io.InputStream;
 final class StartupBrandingOverlay {
     static final String ASSET = "branding/spudacus-v1-full-transparent.png";
     static final int BACKGROUND = Color.rgb(250, 231, 205); // #FAE7CD
-    static final long FADE_IN_MS = 250, HOLD_MS = 1000, FADE_OUT_MS = 250;
+    static final long FADE_IN_MS = 250, HOLD_MS = 2000, FADE_OUT_MS = 250;
     private final FrameLayout parent, surface;
     private final ImageView logo;
     private final Handler handler = new Handler(Looper.getMainLooper());
