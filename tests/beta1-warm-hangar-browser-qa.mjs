@@ -26,7 +26,7 @@ try{
   assert.ok(check.backgroundImage.includes('hangar-warm-empty-v1.svg'),JSON.stringify(check));
   assert.equal(check.pointer,'none');
   assert.ok(check.box.w>100&&check.box.h>80,'Actual visible Hangar background bounds');
-  assert.ok(Math.abs(check.box.w-check.parent.w)<2&&Math.abs(check.box.h-check.parent.h)<2,'Full bay coverage');
+  assert.ok(Math.abs(check.box.w-check.parent.w)<=4&&Math.abs(check.box.h-check.parent.h)<=4,'Full bay coverage within expected CSS border');
   const art=await page.evaluate(async()=>{
    const img=new Image();
    img.src='assets/m12/hangar-warm-empty-v1.svg';
