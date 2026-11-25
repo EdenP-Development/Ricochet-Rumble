@@ -23,7 +23,7 @@ for(const file of ['index.html','style.css','game.js','scored-match.js','dossier
  assert.ok(fs.readFileSync('web/'+file).equals(fs.readFileSync('android/app/src/main/assets/'+file)),file+' mirror mismatch');
 }
 const changed=execFileSync('git',['diff','--name-only','origin/main...HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
-const allowed=/^(web\/(assets\/m12\/hangar-warm-empty-v1\.svg|index\.html|style\.css)|android\/app\/src\/main\/assets\/(assets\/m12\/hangar-warm-empty-v1\.svg|index\.html|style\.css)|tests\/beta1-warm-hangar-contract\.mjs|tests\/reward-hangar-navigation-qa\.mjs|tests\/one-phone-local-relaunch-qa\.mjs|tests\/m11-hybrid-menu-qa\.mjs|\.github\/workflows\/beta1-warm-hangar-qa\.yml|docs\/BETA1_WARM_HANGAR_2026-11-25\.md)$/;
+const allowed=/^(web\/(assets\/m12\/hangar-warm-empty-v1\.svg|index\.html|style\.css)|android\/app\/src\/main\/assets\/(assets\/m12\/hangar-warm-empty-v1\.svg|index\.html|style\.css)|tests\/beta1-warm-hangar-contract\.mjs|tests\/reward-hangar-navigation-qa\.mjs|tests\/one-phone-local-relaunch-qa\.mjs|tests\/m11-hybrid-menu-qa\.mjs|tests\/beta1-warm-hangar-browser-qa\.mjs|\.github\/workflows\/beta1-warm-hangar-qa\.yml|docs\/BETA1_WARM_HANGAR_2026-11-25\.md)$/;
 assert.ok(changed.every(path=>allowed.test(path)),'Unsafe game/source mutation: '+changed.filter(p=>!allowed.test(p)).join(', '));
 assert.ok(!changed.includes('web/game.js')&&!changed.includes('android/app/src/main/assets/game.js'));
 console.log('BETA1_WARM_HANGAR_SOURCE_CONTRACT_PASS asset_git_blob='+gitBlob+' changed_files='+changed.length);
