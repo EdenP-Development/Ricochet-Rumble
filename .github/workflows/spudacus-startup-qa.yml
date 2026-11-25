@@ -76,7 +76,8 @@ jobs:
           with zipfile.ZipFile(sys.argv[1]) as z:
               dex=b''.join(z.read(n) for n in z.namelist() if n.startswith('classes') and n.endswith('.dex'))
               assert b'StartupBrandingOverlay' in dex
-              assert b'spudacusqa' in dex
+              # Test package identity is verified above via aapt; normal startup
+              # must not embed a literal QA-only suffix in MainActivity's DEX.
               assert b'branding/spudacus-v1-full-transparent.png' in dex
               assert b'GridMates' not in z.namelist()
           print('SR_SPUDACUS_NATIVE_STARTUP_PACKAGE_PASS')
@@ -89,8 +90,8 @@ jobs:
             echo "PACKAGE=com.playereden.ricochetrumble.spudacusqa"
             echo "BRANDING=SPUDACUS_ONLY_V1"
             echo "ART_SHA256=74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25"
-            echo "NOMINAL_DURATION_MS=2500
-            echo "MAINLINE_COLD_STARTUP_ENABLED=true""
+            echo "NOMINAL_DURATION_MS=2500"
+            echo "MAINLINE_COLD_STARTUP_ENABLED=true"
             echo "APK_SHA256=$(sha256sum dist/Sector-Rebound-Spudacus-Startup-Visual-QA.apk | cut -d' ' -f1)"
             echo "SIGNING=DISPOSABLE_DEBUG_NOT_PUBLIC_BETA"
             echo "OWNER_PHYSICAL_VISUAL_ACCEPTANCE=PENDING"
