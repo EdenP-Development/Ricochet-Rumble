@@ -1,0 +1,100 @@
+name: Sector Rebound - B1-03 Warm Industrial Hangar isolated QA
+on:
+  push:
+    branches:
+      - feature/beta1-warm-industrial-hangar-slice-2026-11-25
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sector-b1-warm-hangar-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  warm-hangar-source-and-apk:
+    if: github.ref == 'refs/heads/feature/beta1-warm-industrial-hangar-slice-2026-11-25'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Pin exact approved source bytes and guard gameplay against changes
+        run: |
+          set -euo pipefail
+          git fetch origin main --no-tags
+          node tests/beta1-warm-hangar-contract.mjs
+          node tests/smoke.mjs
+          node tests/scored-match-kernel.mjs
+          node tests/save-backup.mjs
+          node tests/dossier.mjs
+          node tests/lan-room-state-d3-a0.mjs
+          node tests/test-signer-contract.mjs
+      - name: Run actual Chrome layout and Hangar navigation regressions
+        run: |
+          set -euo pipefail
+          npm install --no-save --ignore-scripts --no-audit playwright-core@1.56.1
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          node tests/reward-hangar-navigation-qa.mjs
+          node tests/visual-qa.mjs
+      - name: Install Android SDK 36 and build tools
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          test -n "$sdk"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+      - name: Compile existing offline Pixi runtime
+        run: |
+          set -euo pipefail
+          npm --prefix hybrid-ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+      - name: Assemble isolated disposable Android reviewer APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug -PsrSpudacusStartupQA=true
+      - name: Confirm Android app identity, exact artwork, bundled game, signer and checksum
+        run: |
+          set -euo pipefail
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > "$RUNNER_TEMP/b1-warm-debug-cert.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "name='com.playereden.ricochetrumble.spudacusqa'"
+          for file in game.js index.html style.css scored-match.js dossier.js save-backup.js; do
+            cmp "web/$file" <(unzip -p "$apk" "assets/$file")
+          done
+          cmp web/assets/m12/hangar-warm-empty-v1.svg <(unzip -p "$apk" 'assets/assets/m12/hangar-warm-empty-v1.svg')
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+          mkdir -p dist
+          cp "$apk" dist/Sector-Rebound-B1-Warm-Hangar-Review.apk
+          {
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "APP_ID=com.playereden.ricochetrumble.spudacusqa"
+            echo "M13_SOURCE_BLOB=7efe4b676141798c2a5ae77a827c79b64012bc47"
+            echo "ART_SHA256=$(sha256sum web/assets/m12/hangar-warm-empty-v1.svg | awk '{print $1}')"
+            echo "APK_SHA256=$(sha256sum dist/Sector-Rebound-B1-Warm-Hangar-Review.apk | awk '{print $1}')"
+            echo "SIGNER=DISPOSABLE_DEBUG_NOT_ITCH_BETA"
+            echo "GAMEPLAY_AI_TDM_CAMERA_SAVE_UNCHANGED=true"
+            echo "OWNER_PHYSICAL_APPROVAL=PENDING"
+          } > dist/verification.txt
+      - name: Archive isolated APK and test receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sector-Rebound-B1-Warm-Hangar-Review-${{ github.run_id }}
+          path: |
+            dist/
+            qa-results/
+            qa-screens/
+          if-no-files-found: warn
+          retention-days: 14
