@@ -1,5 +1,8 @@
 # Sector Rebound — itch.io Beta 1 readiness plan
 
+> **Gate B1-01 SOURCE INTEGRATION COMPLETE (2026-11-25):** Approved 2.5s standalone Spudacus cold-start branding was merged into normal Android `main` via [PR #154](https://github.com/EdenP-Development/Ricochet-Rumble/pull/154), commit `756b9a7a61f57b6851a7b91223ef659dbd3a1f4a`, after exact-head [Android build/QA #45556834260](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45556834260) and other regression success. Historical status cells below describe the *pre-merge snapshot*. Owner still needs final combined beta APK phone acceptance; successful isolated source QA does not mean the public release is signed or approved. B1-02 physical TDM 30/300 vs 40/360 is still undecided; B1-03 selective approved M13 art/UX integration is next in development.
+
+
 **Owner direction:** 2026-11-25, after physical approval of the revised 2.5 s standalone Spudacus intro. **Goal:** a first **public Android APK beta on itch.io**, not a Google Play release or a promise that every experimental feature will ship.
 
 ## 0. Canonical references and nonnegotiable constraints
