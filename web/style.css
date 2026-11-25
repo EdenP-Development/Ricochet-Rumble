@@ -328,9 +328,9 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 
 /* v0.9.10b — restrained FIELDGRID optical polish.
    Soften the overlay's weight while preserving generous input hit targets. */
-.game-hud .hud-menu{background:#102837bc;border-color:#79a8b572;box-shadow:0 2px 7px #03121d69}
-.game-hud .scorestrip>span{background:#0b2131a5;border-color:#6688947a;box-shadow:0 2px 7px #020c145a}
-.game-hud .scorestrip .middle{background:#122936af;border-color:#7197a17a}
+.game-hud .hud-menu{background:linear-gradient(180deg,#294653e0,#102837e0);border-color:#79a8b590;box-shadow:inset 0 1px 0 #b2d4df19,0 2px 7px #03121d69}
+.game-hud .scorestrip>span{background:#0b2131dc;border-color:#668894a0;box-shadow:0 2px 7px #020c147a}
+.game-hud .scorestrip .middle{background:#122936e6;border-color:#7197a1a0}
 .battlefield .joystick{background:#0d293a65;border-color:#7cc5d48c;box-shadow:0 0 0 4px #102f403c,inset 0 0 10px #04172385}
 .battlefield .fire-btn{background:#db7765c6;border-color:#ffb5a5ba;box-shadow:0 0 0 4px #5e302f39,0 3px 7px #03111b90}
 .battlefield .interact-btn{background:#235044cf;box-shadow:0 2px 7px #0719238c}
@@ -4266,14 +4266,14 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 .game-hud .score-clock.match-arc:not(.hidden){
  width:max-content;max-width:min(248px,60vw);min-height:24px;
  padding:4px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- background:#132b37ed;border-color:#78a4a9;color:#c4eced;
+ background:linear-gradient(180deg,#25434cf5,#132b37f5);border-color:#78a4a9;color:#c4eced;
  font:850 clamp(9px,1.2vw,12px)/1.2 'Droid Sans Mono',ui-monospace,monospace;
 }
 .game-hud .score-clock.match-arc[data-match-stage="final"]{
- background:#3b2f21ed;border-color:#e1b679;color:#ffe2a7;
+ background:linear-gradient(180deg,#4b3b27f5,#30251cf5);border-color:#e1b679;color:#ffe2a7;
 }
 .game-hud .score-clock.match-arc[data-match-stage="deployment"]{
- background:#16313bed;border-color:#6aaeb7;color:#bcf3ee;
+ background:linear-gradient(180deg,#24474cf5,#16313bf5);border-color:#6aaeb7;color:#bcf3ee;
 }
 @media(max-width:650px) and (orientation:landscape){
  .game-hud .score-clock.match-arc:not(.hidden){font-size:9px;padding:3px 7px;max-width:57vw}

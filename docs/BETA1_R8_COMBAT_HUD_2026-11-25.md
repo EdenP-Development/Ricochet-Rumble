@@ -1,0 +1,3 @@
+# B1-R8 — Combat HUD material candidate
+
+Exact R7 parent 37460159dd68d9cced787b96c17294ae0a1badfa passed workflow 45586558563. Six targeted CSS replacements: existing pause button, score chips, middle status chip and three match arc treatments. Slightly more opaque surfaces for readability; preserve all dimensions, hit targets, pointer events, backdrop-filter, colors of factions and damage override, clock semantics, match pacing and reduced-motion rules. No new HUD elements, gameplay, camera or input changes. Candidate browser QA and Android verification pending. Actual screenshots and physical review still pending; owner requests combined test after refinement. No merge or release.
