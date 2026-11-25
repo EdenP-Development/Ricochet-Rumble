@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **B1-R9 2026-11-25 — After Action candidate and QA committed:** [Draft PR #168](https://github.com/EdenP-Development/Ricochet-Rumble/pull/168), exact head `d9f4aa7af6d57463b57929b2b6c71bc7e24a13d7`, stacked on #167. R8 exact head `926b0b000168484746ab013b43e7a6b7b66e9ab5` passed [workflow #45589697382](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45589697382). R9 CSS-only report/metrics/buttons materials and restored defeat tint; five-size victory/defeat A/B plus Android QA committed, results pending. Next verify R9 then R10 cumulative regression and one owner-review APK. Owner requested no interim physical tests. No merges or publication; two-phone Wi-Fi and public signed beta remain outstanding.
+
+
 > **B1-R8 2026-11-25 — Combat HUD candidate and QA committed:** [Draft PR #167](https://github.com/EdenP-Development/Ricochet-Rumble/pull/167), exact head `926b0b000168484746ab013b43e7a6b7b66e9ab5`, stacked on #166. R7 exact head `37460159dd68d9cced787b96c17294ae0a1badfa` passed [workflow #45586558563](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45586558563). R8 six CSS-only surface replacements for pause, scoreboard, status chip and three match-stage treatments; mirrored CSS and unchanged game code. Five-size, three-stage browser A/B and landscape safe-zone regression plus Android build committed; results pending. Owner wants one overall phone review after refinement. Next verify R8, then R9 After Action, then R10 consolidation. No merges or public release; physical Wi-Fi and signed beta remain outstanding.
 
 
