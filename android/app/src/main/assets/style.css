@@ -4149,10 +4149,14 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 }
 
 
-/* B1-03-B: exact accepted M13 illustrated core Mode Select cards.
+/* B1-R2: reconcile actual selector specificity in original B1-03-B illustrated cards.
+   Older #menu #panel .mode-grid .mode-mission won the cascade over the visual
+   background/text treatment. Use scoped selectors, not !important, to make
+   these intended local card colors effective without changing layout/actions.
+   Original B1-03-B: exact accepted M13 illustrated core Mode Select cards.
    Presentation only: no data-action, KO target, clock, button geometry or player
    identity changes. The artwork is bundled locally for offline Android use. */
-#menu .mode-screen .mode-grid .mode-mission{
+#menu #panel .mode-screen .mode-grid .mode-mission{
  isolation:isolate;overflow:hidden;
  border-top-color:#688e9259;border-bottom-color:#172e3f;
  background:linear-gradient(105deg,#172f3c 0%,#112935 58%,#0c222c 100%);
@@ -4178,8 +4182,8 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
  position:relative;z-index:1;
 }
 #menu .mode-screen .mode-grid .mode-copy{text-shadow:0 1px 3px #051722}
-#menu .mode-screen .mode-grid .mode-copy strong{color:#f4f6f1}
-#menu .mode-screen .mode-grid .mode-copy small{color:#bdd4d6}
+#menu #panel .mode-screen .mode-grid .mode-mission .mode-copy strong{color:#f4f6f1}
+#menu #panel .mode-screen .mode-grid .mode-mission .mode-copy small{color:#bdd4d6}
 #menu .mode-screen .mode-grid .mode-serial{color:#d1b37b}
 #menu #panel .mode-screen .mode-grid .mode-mission:focus-visible{
  outline:2px solid #f4d18f;outline-offset:1px;
