@@ -18,14 +18,15 @@ for(const f of ['index.html','style.css','game.js'])
 
 const allowed=new Set(['index.html','style.css','game.js','save-backup.js','dossier.js',
  'scored-match.js','forward-bays.js','lan-series.js','lan-room.js',
- 'ctf-rules.js','ctf-ai.js','hybrid-menu-pixi.bundle.js']);
+ 'ctf-rules.js','ctf-ai.js','hybrid-menu-pixi.bundle.js',
+ 'assets/m12/hangar-warm-empty-v1.svg']);
 const missing=[],external=[],errors=[];
 const server=http.createServer((req,res)=>{
  const pathname=new URL(req.url,'http://127.0.0.1').pathname;
  const name=decodeURIComponent(pathname).replace(/^\/+/,'')||'index.html';
  if(name==='favicon.ico'){res.writeHead(204);res.end();return;}
  if(!allowed.has(name)){missing.push(name);res.writeHead(404);res.end();return;}
- const type=name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html';
+ const type=name.endsWith('.svg')?'image/svg+xml':name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html';
  res.writeHead(200,{'Content-Type':type,'Cache-Control':'no-store'});
  res.end(fs.readFileSync(path.join(root,name)));
 });

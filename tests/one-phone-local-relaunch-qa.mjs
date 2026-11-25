@@ -10,12 +10,12 @@ import {chromium} from 'playwright-core';
 assert.ok(process.env.CHROME_BIN,'Chromium required');
 const root=path.resolve('web'),notFound=[];
 const allowed=new Set(['index.html','style.css','game.js','save-backup.js','dossier.js',
- 'scored-match.js','forward-bays.js','lan-series.js','lan-room.js','ctf-rules.js','ctf-ai.js']);
+ 'scored-match.js','forward-bays.js','lan-series.js','lan-room.js','ctf-rules.js','ctf-ai.js','assets/m12/hangar-warm-empty-v1.svg']);
 const server=http.createServer((req,res)=>{
  const name=decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname).replace(/^\/+/,'')||'index.html';
  if(name==='favicon.ico'){res.writeHead(204);res.end();return;}
  if(!allowed.has(name)){notFound.push(name);res.writeHead(404);res.end();return;}
- res.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'text/html'});
+ res.writeHead(200,{'Content-Type':name.endsWith('.svg')?'image/svg+xml':name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'text/html'});
  res.end(fs.readFileSync(path.join(root,name)));
 });
 await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
