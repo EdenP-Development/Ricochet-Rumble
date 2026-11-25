@@ -2585,7 +2585,7 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 }
 #menu .lan-lobby .lan-presence strong{color:#afe1d4}
 #menu .lan-lobby .lan-address{
- flex:0 0 auto;margin:0;background:#132d37;border-left:3px solid #83c4cc;
+ flex:0 0 auto;margin:0;background:linear-gradient(90deg,#1c3945,#132d37);border-left:3px solid #83c4cc;
  padding:7px 10px;overflow-wrap:anywhere;
 }
 #menu .lan-lobby-controls{flex:0 0 auto;min-width:0}
@@ -2604,7 +2604,7 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 #menu .lan-lobby-actions{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:9px}
 #menu #panel .lan-lobby-actions button{margin:0;min-height:45px;font-size:clamp(11px,1.3vw,15px);border-radius:4px}
 #menu #panel .lan-lobby-actions .primary:not(:disabled){
- background:linear-gradient(#f7c875,#e7ac46);border-color:#ffe4a1;color:#2d210e;box-shadow:inset 0 1px 0 #fff7d99c;
+ background:linear-gradient(180deg,#ffffff20,transparent 40%,#69430e19),linear-gradient(#f7c875,#e7ac46);border-color:#ffe4a1;color:#2d210e;box-shadow:inset 0 1px 0 #fff7d99c,0 2px 5px #0004;
 }
 @media(max-width:700px) and (orientation:landscape){
  #menu .lan-entry-main{gap:8px}
@@ -3275,13 +3275,13 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 #menu #panel .lan-entry-choices button{
   flex-direction:row;align-items:center;gap:clamp(5px,.9vw,9px);
   min-height:48px;padding:6px clamp(7px,1vw,11px);
-  border-radius:3px;border-color:#4c738082;box-shadow:none;
-  background:linear-gradient(90deg,#1c3743,#142e3b);
+  border-radius:3px;border-color:#4c738082;box-shadow:inset 0 1px 0 #b2d4df19;
+  background:linear-gradient(180deg,#b4d3dd0e,transparent 48%,#030d1533),linear-gradient(90deg,#1c3743,#142e3b);
 }
 #menu #panel .lan-entry-choices button.lan-entry-host.primary{
   min-height:clamp(55px,11dvh,70px);
-  background:linear-gradient(115deg,#f9cd7c,#e8a94b);
-  box-shadow:inset 0 1px 0 #fff2bf8c,0 2px 0 #785624;
+  background:linear-gradient(180deg,#ffffff26,transparent 38%,#69430e19),linear-gradient(115deg,#f9cd7c,#e8a94b);
+  box-shadow:inset 0 1px 0 #fff2bf8c,0 2px 0 #785624,0 4px 8px #0004;
 }
 #menu .lan-entry-symbol{
   display:grid;place-items:center;flex:0 0 auto;
@@ -4096,7 +4096,7 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
 #menu .lan-lobby .lan-presence-slot{
  display:flex;align-items:center;justify-content:space-between;gap:clamp(5px,.85vw,10px);
  min-width:0;min-height:clamp(27px,5dvh,37px);padding:5px clamp(6px,.85vw,11px);
- border:1px solid #4e7985;border-radius:3px;background:#1b3e4a;
+ border:1px solid #4e7985;border-radius:3px;background:linear-gradient(180deg,#a9c7cd12,transparent 50%),#1b3e4a;
 }
 #menu .lan-lobby .lan-presence-slot span{
  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
