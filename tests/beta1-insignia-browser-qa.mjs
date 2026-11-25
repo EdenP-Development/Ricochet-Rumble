@@ -31,7 +31,12 @@ try{
                          ['field','.insignia-detail-mark']]){
    const a=await page.locator(sel).evaluate(el=>({bg:getComputedStyle(el).backgroundImage,box:el.getBoundingClientRect().toJSON()}));
    assert.ok(a.bg.includes('insignia-'+id+'-study-v1.svg'),sel+' '+JSON.stringify(a));
-   assert.ok(a.box.width>15&&a.box.height>15);
+   // Existing <=330px landscape style intentionally hides the bulky detail
+   // panel so the actual four selectable insignia cards fit the phone.
+   if(sel==='.insignia-detail-mark'&&height<=330){
+    assert.equal(a.box.height,0,'compact phone intentionally hides detail panel');
+   }else assert.ok(a.box.width>15&&a.box.height>15,sel+' actual bounds');
+
   }
   assert.match(await page.locator('#insignia-detail-name').innerText(),/FIELD/);
   // Check all four source images without modifying unlocks, save state or game code.
