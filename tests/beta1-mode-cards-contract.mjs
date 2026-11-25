@@ -1,4 +1,4 @@
-// B1-03-B Mode Select illustration source and safety contract.
+// B1-03-B: verify byte-for-byte M13 art, no gameplay mutation.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -14,11 +14,11 @@ const html=fs.readFileSync('web/index.html','utf8');
 for(const [mode,expected] of Object.entries(original)){
  const name='mode-'+mode+'-study-v1.svg';
  const bytes=fs.readFileSync('web/assets/m12/'+name);
- const gitBlob=crypto.createHash('sha1').update(Buffer.concat([Buffer.from('blob '+bytes.length+'\\0'),bytes])).digest('hex');
- assert.equal(gitBlob,expected,name+' exact source blob');
+ const gitBlob=crypto.createHash('sha1').update(Buffer.concat([Buffer.from('blob '+bytes.length+'\0'),bytes])).digest('hex');
+ assert.equal(gitBlob,expected,name+' exact original Git blob');
  assert.ok(bytes.equals(fs.readFileSync('android/app/src/main/assets/assets/m12/'+name)),name+' Android art parity');
- assert.ok(css.includes('url("assets/m12/'+name+'")'),name+' visually referenced');
- assert.ok(html.includes('mode-mission mode-'+mode),name+' authentic real mode button');
+ assert.ok(css.includes('url("assets/m12/'+name+'")'),name+' referenced in CSS');
+ assert.ok(html.includes('mode-mission mode-'+mode),name+' authentic button');
 }
 for(const path of ['game.js','index.html','style.css','scored-match.js','dossier.js','save-backup.js']){
  assert.ok(fs.readFileSync('web/'+path).equals(fs.readFileSync('android/app/src/main/assets/'+path)),path+' Android mirror');
@@ -32,12 +32,11 @@ const buttons={
  custom:['custom','YOUR RULES · YOUR ARENA']
 };
 for(const [mode,[action,label]] of Object.entries(buttons)){
- const re=new RegExp('class="mode-mission mode-'+mode+'" data-action="'+action+'"');
- assert.match(html,re,'unchanged real action for '+mode);
- assert.ok(html.includes(label),'unchanged player-visible KO/clock label');
+ assert.ok(html.includes('class="mode-mission mode-'+mode+'" data-action="'+action+'"'),'unchanged real action '+mode);
+ assert.ok(html.includes(label),'unchanged mode label '+mode);
 }
-const changed=execFileSync('git',['diff','--name-only','origin/feature/beta1-warm-industrial-hangar-slice-2026-11-25...HEAD'],{encoding:'utf8'}).trim().split('\\n').filter(Boolean);
-const allow=/^(web\\/(style\\.css|assets\\/m12\\/mode-(?:cqc|ffa|tdm|custom)-study-v1\\.svg)|android\\/app\\/src\\/main\\/assets\\/(style\\.css|assets\\/m12\\/mode-(?:cqc|ffa|tdm|custom)-study-v1\\.svg)|tests\\/beta1-mode-cards-(?:contract|browser-qa)\\.mjs|\\.github\\/workflows\\/beta1-mode-cards-qa\\.yml|docs\\/BETA1_MODE_CARDS_2026-11-25\\.md)$/;
+const changed=execFileSync('git',['diff','--name-only','origin/feature/beta1-warm-industrial-hangar-slice-2026-11-25...HEAD'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
+const allow=/^(web\/(style\.css|assets\/m12\/mode-(?:cqc|ffa|tdm|custom)-study-v1\.svg)|android\/app\/src\/main\/assets\/(style\.css|assets\/m12\/mode-(?:cqc|ffa|tdm|custom)-study-v1\.svg)|tests\/beta1-mode-cards-(?:contract|browser-qa)\.mjs|\.github\/workflows\/beta1-mode-cards-qa\.yml|docs\/BETA1_MODE_CARDS_2026-11-25\.md)$/;
 assert.ok(changed.every(x=>allow.test(x)),'Unsafe source change: '+changed.filter(x=>!allow.test(x)).join(','));
 assert.ok(!changed.includes('web/game.js')&&!changed.includes('android/app/src/main/assets/game.js'));
 console.log('BETA1_MODE_CARDS_SOURCE_PASS '+JSON.stringify({changed:changed.length,original,gameplayChanged:false}));
