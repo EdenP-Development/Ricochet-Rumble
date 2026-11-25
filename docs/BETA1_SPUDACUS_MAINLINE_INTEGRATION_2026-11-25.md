@@ -14,7 +14,7 @@
 
 - [x] Owner accepted 2.5s **visual/timing** in the existing isolated QA package.
 - [x] Same approved PNG Git object in branch; no regeneration.
-- [ ] New **mainline-wired** exact-source CI green; record Actions run and artifact.
+- [x] New **mainline-wired** exact-source Android CI **PASS**: [run #45556695604](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45556695604), tested source `38dc291c8c0df3e51939de924477c27953f1219d`; [isolated APK + receipt artifact #14994844697](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45556695604/artifacts/14994844697). First attempt [#45556500482](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45556500482) failed due to obsolete **QA-only package-string check**, not Android compile/game logic; test was corrected (normal cold startup no longer contains a package-suffix literal). Build, original artwork checksum, APK package/asset parity and save/LAN regressions then **passed**. Real-device test of mainline-wired entry remains pending.
 - [ ] Physical sanity of normal cold-launch behavior in beta integration candidate and skip/Back/reduced motion/home/resume/landscape on owner's phone. The source tests are not equivalent to device instrumentation.
 - [ ] Merge this focused change to main **only after source/Android CI passes and integration review**; do not merge gameplay draft PRs or publish a beta as a side effect.
 - [ ] Later test real private beta-signed `com.playereden.ricochetrumble.beta` package and install-over/save preservation separately.
