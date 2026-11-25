@@ -76,7 +76,7 @@ const srv=http.createServer((req,res)=>{
  res.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript':
   name.endsWith('.css')?'text/css':name.endsWith('.svg')?'image/svg+xml':'text/html',
   'Cache-Control':'no-store'});
- res.end(name==='game.js'?script:fs.readFileSync(target));
+ res.end(name==='game.js'?injected:fs.readFileSync(target));
 });
 await new Promise(done=>srv.listen(0,'127.0.0.1',done));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_BIN,args:['--no-sandbox','--disable-dev-shm-usage']});
