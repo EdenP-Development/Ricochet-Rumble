@@ -29,9 +29,14 @@ def requestedPreviewCode = providers.gradleProperty('srPreviewVersionCode').orNu
 def requestedPreviewName = providers.gradleProperty('srPreviewVersionName').orNull
 def previewPackageSwitch = providers.gradleProperty('srPreviewPackage').orNull
 // An isolated, self-contained phone demo. Never uses the production or owner preview ID.
+def spudacusStartupQA = providers.gradleProperty('srSpudacusStartupQA').orNull
+if (spudacusStartupQA != null && spudacusStartupQA != 'true')
+    throw new GradleException('srSpudacusStartupQA must be true if present')
 def hybridLabPackage = providers.gradleProperty('srHybridLabPackage').orNull
 if (hybridLabPackage != null && hybridLabPackage != 'true')
     throw new GradleException('srHybridLabPackage must be true when supplied')
+if (spudacusStartupQA == 'true' && (previewPackageSwitch != null || hybridLabPackage != null))
+    throw new GradleException('Branding QA must never reuse a regular/owner preview app identity')
 if (hybridLabPackage == 'true' && previewPackageSwitch != null)
     throw new GradleException('Hybrid test package must never be combined with owner preview package')
 if (previewPackageSwitch != null && previewPackageSwitch != 'true')
@@ -87,6 +92,7 @@ android {
             // CI QA without this flag retains the historical package and version.
             if (previewPackageSwitch == 'true') applicationIdSuffix '.preview'
             if (hybridLabPackage == 'true') applicationIdSuffix '.hybridtest'
+            if (spudacusStartupQA == 'true') applicationIdSuffix '.spudacusqa'
             if (hasTestSigning) signingConfig signingConfigs.internalTest
         }
         release {
