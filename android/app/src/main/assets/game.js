@@ -1175,6 +1175,117 @@ function refreshHudScoreAccents(){
  if(mine?.style)mine.style.color=accents.left;
  if(theirs?.style)theirs.style.color=accents.right;
 }
+// M13-B: truthful Solo stage, elapsed/remaining clock, actual KO goal.
+// Read-only presentation; never adjust winners, AI, simulation or save records.
+function matchArcFor(st=state,session=mode){
+ if(!st||session!=='solo'||st.config?.ctfExercise||st.config?.dailySector||
+   st.config?.forwardBayExercise||(!st.scored&&!(st.config?.botCount>0)))return null;
+ if(st.winner>=0)return null;
+ const elapsed=Math.max(0,Number(st.scored?.elapsedSeconds??st.elapsedSeconds)||0);
+ if(st.scored){
+  const s=st.scored;
+  const scores=s.mode==='teams'?[0,1].map(team=>s.operatorKOs.reduce(
+   (sum,k,i)=>sum+(s.teamIds[i]===team?k:0),0)):[...s.operatorKOs];
+  const leader=Math.max(0,...scores),target=s.scoreTarget;
+  const left=Math.max(0,s.clockSeconds-elapsed);
+  const stage=left<=45||leader>=Math.ceil(.8*target)?'final':
+    elapsed<18&&leader===0?'deployment':'engagement';
+  const label=stage==='final'?'FINAL PUSH':stage==='deployment'?'DEPLOY':'ENGAGE';
+  const time=durationLabel(Math.ceil(left));
+  return {stage,label,text:label+' · '+time+' · '+leader+'/'+target,
+   aria:label+'. '+time+' left. Leader '+leader+' of '+target+' KOs.',
+   leader,target,left,elapsed};
+ }
+ const active=(st.tanks||[]).map((_,i)=>i).filter(i=>(st.lives?.[i]||0)>0);
+ const sides=new Set(active.map(i=>teamOf(i,st)));
+ const deaths=(st.deaths||[]).reduce((total,k)=>total+(Number(k)||0),0);
+ const lives=st.lives?.[0]||0;
+ const opponents=active.filter(i=>!friendlyForState(0,i,st)).length;
+ // Team modes always have two team IDs, so team count alone is NOT a finale.
+ const decisive=st.config?.teamMode==='teams'?opponents<=1:sides.size<=2;
+ const eliminated=lives===0;
+ const stage=eliminated&&!decisive?'spectating':
+  deaths>0&&(decisive||(lives>0&&lives<=1))?'final':
+  elapsed<18&&deaths===0?'deployment':'engagement';
+ const label=stage==='spectating'?'WATCH FIGHT':
+  stage==='final'?(eliminated?'FINAL CONTACT':'FINAL STAND'):
+  stage==='deployment'?'DEPLOY':'ENGAGE';
+ const time=durationLabel(Math.floor(elapsed));
+ return {stage,label,text:label+' · '+time+' · '+opponents+' LEFT',
+  aria:label+'. '+time+' elapsed. '+opponents+' enemy sides remain. '+lives+' lives.',
+  opponents,lives,elapsed};
+}
+let lastMatchArcStage=null,lastMatchArcId=0;
+function refreshMatchArc(clock){
+ const phase=matchArcFor(),active=!!phase;
+ clock.classList.toggle('match-arc',active);
+ if(!active){delete clock.dataset.matchStage;return false;}
+ clock.textContent=phase.text;
+ clock.dataset.matchStage=phase.stage;
+ if(typeof clock.setAttribute==='function')clock.setAttribute('aria-label',phase.aria);
+ if(lastMatchArcId!==state.matchId){lastMatchArcId=state.matchId;lastMatchArcStage=null;}
+ if(!paused&&menu.classList.contains('hidden')&&lastMatchArcStage!==phase.stage){
+  if(lastMatchArcStage!==null){
+   if(phase.stage==='engagement')notice('ENGAGEMENT · CONTACTS ACTIVE',1900);
+   else if(phase.stage==='final')notice(phase.label+' · MATCH AT STAKE',2200);
+  }
+  lastMatchArcStage=phase.stage;
+ }
+ return true;
+}
+
+
+/* M13-B4: the truly eliminated Solo Survival operator may watch surviving bots.
+   Camera and controls only; never alter AI, damage, rewards, scoring or LAN. */
+let soloWatchSeat=null,soloWatchMatchId=null,soloWatchFocusPending=false;
+function soloWatchActive(st=state,session=mode){
+ return session==='solo'&&st?.winner<0&&st.lives?.[0]===0&&
+  !st.config?.dailySector&&!st.config?.ctfExercise&&!st.config?.forwardBayExercise&&
+  ['survival_ffa','survival_teams'].includes(st.config?.matchModeId)&&
+  st.tanks?.some((_,i)=>i>0&&st.lives[i]>0);
+}
+function soloWatchCandidates(st=state){
+ if(!soloWatchActive(st))return [];
+ const alive=st.tanks.map((_,i)=>i).filter(i=>i>0&&st.lives[i]>0);
+ const nearestOpponent=i=>{
+  const other=alive.filter(j=>j!==i&&teamOf(j,st)!==teamOf(i,st));
+  return other.length?Math.min(...other.map(j=>Math.hypot(
+   st.tanks[i].x-st.tanks[j].x,st.tanks[i].y-st.tanks[j].y))):Infinity;
+ };
+ return alive.sort((a,b)=>nearestOpponent(a)-nearestOpponent(b)||a-b);
+}
+function soloWatchTarget(){
+ const seats=soloWatchCandidates();
+ if(!seats.length)return null;
+ if(soloWatchMatchId!==state.matchId){soloWatchMatchId=state.matchId;soloWatchSeat=null;}
+ if(!seats.includes(soloWatchSeat)){soloWatchSeat=seats[0];soloWatchFocusPending=true;}
+ return state.tanks[soloWatchSeat]||null;
+}
+function updateSoloWatchUI(){
+ const wrapper=document.getElementById('solo-watch-bar'),gameScreen=document.getElementById('game-screen');
+ const target=soloWatchTarget(),active=!!target;
+ if(gameScreen)gameScreen.classList.toggle('solo-watching',active);
+ if(wrapper){
+  wrapper.classList.toggle('hidden',!active);
+  if(active){
+   const name=document.getElementById('solo-watch-label');
+   if(name)name.textContent='WATCHING · '+label(soloWatchSeat);
+   const next=document.getElementById('solo-watch-next');
+   if(next){next.disabled=soloWatchCandidates().length<2;
+    if(typeof next.setAttribute==='function')next.setAttribute('aria-label','Follow next surviving combatant');}
+  }
+ }
+ return active;
+}
+function cycleSoloWatchTarget(){
+ const seats=soloWatchCandidates();
+ if(seats.length<2)return false;
+ const index=seats.indexOf(soloWatchSeat);
+ soloWatchSeat=seats[(index+1+seats.length)%seats.length];
+ soloWatchFocusPending=true;
+ updateSoloWatchUI();return true;
+}
+
 function refreshHUD(){refreshHudModeChip();refreshHudScoreAccents();const me=mode==='guest'&&!lanSpectating?1:0,other=me===0?1:0;
  document.getElementById('score0').textContent=state.lives[me]??0;document.getElementById('score1').textContent=state.lives[other]??0;
  const botLives=mode==='solo'||(mode==='host'&&state.config?.lanHostSolo===true)?
@@ -1218,7 +1329,7 @@ function refreshHUD(){refreshHudModeChip();refreshHudScoreAccents();const me=mod
  if(slots&&cap<=12){const markup=Array.from({length:cap},(_,i)=>'<i class="shell-slot'+(i<available?' ready':'')+'"></i>').join('');if(slots.innerHTML!==markup)slots.innerHTML=markup;}
 }
  const power=document.getElementById('power-status');if(power){const def=PICKUPS[localPilot?.powerType];const activePower=(state.lives[me]??0)>0&&!!def&&localPilot.powerTimer>0;power.classList.toggle('hidden',!activePower);power.textContent=activePower?def.name+' · '+Math.ceil(localPilot.powerTimer)+'s':'';if(activePower)power.style.borderColor=def.color;}
- const ended=state.winner>=0&&mode!=='idle';if(ended||state.eventTimer>0)toast.classList.remove('visible');
+ const ended=state.winner>=0&&mode!=='idle';updateSoloWatchUI();if(ended||state.eventTimer>0)toast.classList.remove('visible');
  document.getElementById('game-screen')?.classList.toggle('match-finished',ended);
  const report=document.getElementById('after-action');
  // Solo results are captured once from combat state. LAN guest uses the existing
@@ -1308,7 +1419,18 @@ function refreshHUD(){refreshHudModeChip();refreshHudScoreAccents();const me=mod
  }
  const fireHint=document.getElementById('fire-mode');if(fireHint)fireHint.textContent=comfort.autoFire?'AUTO ON':comfort.releaseFire&&['solo','host','guest'].includes(mode)?'AIM · RELEASE':'HOLD TO FIRE';
  const clock=document.getElementById('score-clock'),life=document.querySelector('.scorestrip .hud-life');
- if(clock){clock.classList.toggle('hidden',!isScoredMatch()||ctf);if(isScoredMatch()&&!ctf)clock.textContent=durationLabel(Math.ceil(Math.max(0,state.scored.clockSeconds-state.scored.elapsedSeconds)))+(state.lanSeries?' · R'+state.lanSeries.round+'/3':'');}
+ if(clock){
+  const arc=mode==='solo'?refreshMatchArc(clock):false;
+  clock.classList.toggle('hidden',!(isScoredMatch()||arc)||ctf);
+  if(!arc){
+   // Restored to canonical LAN/CTF presentation when exiting Solo watch mode.
+   clock.classList.remove('match-arc');delete clock.dataset.matchStage;
+   if(isScoredMatch()&&!ctf){
+    clock.textContent=durationLabel(Math.ceil(Math.max(0,state.scored.clockSeconds-state.scored.elapsedSeconds)))+(state.lanSeries?' · R'+state.lanSeries.round+'/3':'');
+    if(typeof clock.setAttribute==='function')clock.setAttribute('aria-label','Time remaining');
+   }
+  }
+ }
  if(life)life.classList.toggle('hidden',isScoredMatch());
  if(ctf){
   document.getElementById('score0').textContent=state.ctf.scores[0];
@@ -2847,14 +2969,22 @@ function drawEnemyBotCue(c,t,cue){
 }
 function render(dt=STEP){const c=ctx;c.clearRect(0,0,W,H);c.save();if(screenKick>0)c.translate(Math.sin(visualClock*130)*screenKick,Math.cos(visualClock*98)*screenKick*.5);// Widened tactical camera. The perimeter includes enough rendered exterior
  // floor tiles so wide Android screens do not reveal blank side gutters.
- const me=mode==='guest'&&!lanSpectating?1:0,localTank=state.lives[me]>0?state.tanks[me]:(state.tanks.find((t,i)=>state.lives[i]>0)||state.tanks[me]||state.tanks[0]);
+ const me=mode==='guest'&&!lanSpectating?1:0,watchTarget=mode==='solo'?soloWatchTarget():null,
+ localTank=watchTarget||(state.lives[me]>0?state.tanks[me]:(state.tanks.find((t,i)=>state.lives[i]>0)||state.tanks[me]||state.tanks[0]));
  const zoomTarget=cameraZoom(localTank);
  if(!Number.isFinite(camera.zoom))camera.zoom=zoomTarget;
  const zoomFloor=mazeGrid?Math.max(W/(worldW+CAMERA_APRON*2),H/(worldH+CAMERA_APRON*2)):1;
  camera.zoom=Math.max(zoomFloor,camera.zoom+(zoomTarget-camera.zoom)*(1-Math.exp(-Math.min(.1,Math.max(0,dt))*5.2)));
  const zoom=camera.zoom,viewW=W/zoom,viewH=H/zoom;
  const apron=mazeGrid?CAMERA_APRON:0;const desiredX=clamp((localTank?.x||W/2)-viewW/2,-apron,Math.max(-apron,worldW+apron-viewW)),desiredY=clamp((localTank?.y||H/2)-viewH/2,-apron,Math.max(-apron,worldH+apron-viewH));
- const follow=1-Math.exp(-Math.min(.1,dt)*13);camera.x+=(desiredX-camera.x)*follow;camera.y+=(desiredY-camera.y)*follow;if(!mazeGrid){camera.x=0;camera.y=0}
+ if(watchTarget&&soloWatchFocusPending){
+  // Never show empty terrain while crossing the maze between living cameras.
+  camera.x=desiredX;camera.y=desiredY;soloWatchFocusPending=false;
+ }else{
+  const follow=1-Math.exp(-Math.min(.1,dt)*13);
+  camera.x+=(desiredX-camera.x)*follow;camera.y+=(desiredY-camera.y)*follow;
+ }
+ if(!mazeGrid){camera.x=0;camera.y=0}
  c.scale(zoom,zoom);c.translate(-camera.x,-camera.y);
  // Paint past the playable perimeter so a small camera pullback remains
  // immersive rather than showing untextured side gutters.
@@ -3525,7 +3655,8 @@ function showPauseMenu(){
     '<button data-action="close">DISCONNECT</button>'));
  }
 }
-document.getElementById('spectator-queue')?.addEventListener('click',()=>{
+document.getElementById('solo-watch-next')?.addEventListener('click',()=>{if(cycleSoloWatchTarget())audioCue('ui-select');});
+ document.getElementById('spectator-queue')?.addEventListener('click',()=>{
  guestJoinNextAction(lanGuestJoinNext==='queued'?'cancel':'join');
 });
 document.getElementById('menu-button').addEventListener('click',()=>{if(mode!=='idle')audioCue('ui-select');showPauseMenu()});
