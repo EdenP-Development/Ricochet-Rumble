@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **B1-R5 2026-11-25 — Hangar candidate + dedicated QA committed:** [Draft PR #164](https://github.com/EdenP-Development/Ricochet-Rumble/pull/164), exact head `5c736e8f76ba8f628c636dc867d1b910eb29c0d9`, stacked on R4 #162. R4 exact head `0f363a6c1bd717abf3b846d6c5cf6161d068031d` passed [workflow #45579399378](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45579399378). R5 changes five CSS declarations only: warm plate ambient light, frame, caption and footer materials; mirrored Android/Web, original art and gameplay preserved. R5 five-size browser A/B + Android QA workflow committed; results pending. Owner requested one overall phone test after refinements, not per-slice acceptance. Next verify R5 and proceed R6 Dossier/menu consistency; no merges or publication.
+
+
 > **B1-R3 2026-11-25 — exact-head browser and Android QA PASS:** [Draft PR #161](https://github.com/EdenP-Development/Ricochet-Rumble/pull/161), stacked on #160, exact head `906ae9dd8c35391264e72727aafbee8986c0fc35`. [Workflow #45577738514](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45577738514) completed successfully, all job steps passed; [artifact #15003963839](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45577738514/artifacts/15003963839) includes isolated debug APK, R2/R3 screenshots and comparison JSON, expires December 9. Home-only scrollbar restoration in mirrored CSS; no game, art, rules, save or LAN changes. Actual screenshot inspection and phone acceptance remain pending; no claim of reproduced overflow or always-visible Android indicator. Next: review actual screenshots and Home title/action hierarchy before focused R4. No merges or public beta.
 
 
