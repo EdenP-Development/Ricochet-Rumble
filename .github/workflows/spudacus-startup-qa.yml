@@ -1,0 +1,104 @@
+name: Sector Rebound - Spudacus v1 isolated Android startup QA
+on:
+  push:
+    branches:
+      - feature/spudacus-startup-standalone-2026-11-25
+    paths:
+      - 'android/**'
+      - 'tests/spudacus-startup-contract.mjs'
+      - '.github/workflows/spudacus-startup-qa.yml'
+      - 'docs/SPUDACUS_STARTUP_*'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sr-spudacus-startup-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  standalone-branding-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Verify exact v1.0 asset and safe game/signing isolation
+        run: |
+          set -euo pipefail
+          sha256sum android/app/src/main/assets/branding/spudacus-v1-full-transparent.png
+          echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  android/app/src/main/assets/branding/spudacus-v1-full-transparent.png' | sha256sum --check --status
+          node tests/spudacus-startup-contract.mjs
+          node tests/smoke.mjs
+          node tests/scored-match-kernel.mjs
+          node tests/save-backup.mjs
+          node tests/android-upgrade-readiness.mjs
+          node tests/lan-room-state-d3-a0.mjs
+          node tests/dossier.mjs
+      - name: Install SDK 36 and build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          test -n "$sdk"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+      - name: Build pinned local offline Pixi runtime
+        run: |
+          npm --prefix hybrid-ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+      - name: Build standalone Spudacus isolated QA APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug -PsrSpudacusStartupQA=true
+      - name: Check real APK identity, Android bytecode, runtime source parity, and pinned image
+        run: |
+          set -euo pipefail
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > "$RUNNER_TEMP/sr-spudacus-cert.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "name='com.playereden.ricochetrumble.spudacusqa'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "application-label:'Sector Rebound'"
+          for file in game.js index.html style.css scored-match.js dossier.js save-backup.js; do
+            cmp "web/$file" <(unzip -p "$apk" "assets/$file")
+          done
+          cmp android/app/src/main/assets/branding/spudacus-v1-full-transparent.png <(unzip -p "$apk" 'assets/branding/spudacus-v1-full-transparent.png')
+          echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  android/app/src/main/assets/branding/spudacus-v1-full-transparent.png' | sha256sum -c -
+          python3 - "$apk" <<'PY'
+          import sys,zipfile
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              dex=b''.join(z.read(n) for n in z.namelist() if n.startswith('classes') and n.endswith('.dex'))
+              assert b'StartupBrandingOverlay' in dex
+              assert b'spudacusqa' in dex
+              assert b'branding/spudacus-v1-full-transparent.png' in dex
+              assert b'GridMates' not in z.namelist()
+          print('SR_SPUDACUS_NATIVE_STARTUP_PACKAGE_PASS')
+          PY
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+          mkdir -p dist
+          cp "$apk" dist/Sector-Rebound-Spudacus-Startup-Visual-QA.apk
+          {
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "PACKAGE=com.playereden.ricochetrumble.spudacusqa"
+            echo "BRANDING=SPUDACUS_ONLY_V1"
+            echo "ART_SHA256=74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25"
+            echo "NOMINAL_DURATION_MS=1500"
+            echo "APK_SHA256=$(sha256sum dist/Sector-Rebound-Spudacus-Startup-Visual-QA.apk | cut -d' ' -f1)"
+            echo "SIGNING=DISPOSABLE_DEBUG_NOT_PUBLIC_BETA"
+            echo "OWNER_PHYSICAL_VISUAL_ACCEPTANCE=PENDING"
+            echo "NO_GAMEPLAY_OR_SAVE_CHANGES"
+          } > dist/verification.txt
+      - name: Upload debug-only QA APK and checksum receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sector-Rebound-Spudacus-Startup-QA-${{ github.run_id }}
+          path: dist/
+          if-no-files-found: warn
+          retention-days: 14
