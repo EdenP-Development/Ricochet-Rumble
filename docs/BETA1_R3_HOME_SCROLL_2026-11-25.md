@@ -1,0 +1,3 @@
+# B1-R3 — Home scroll affordance
+
+Candidate based on exact R2 head `accb09d19e7efdae5a04e0739f6db61e1b5c2f49`. The Home action column uses overflow-y:auto but explicitly hides its scrollbar in standard and WebKit CSS. Restore a thin muted cyan scrollbar; preserve responsive sizing, art, button actions, gameplay and other surfaces. No claim that tested devices overflow or that this solves a reproduced clipping defect. Android may auto-hide native overlay scrollbars. Review actual R2/R3 screenshots and test short landscape scroll reachability, button bounds, focus, source parity and Android build before acceptance. No merge or publication.
