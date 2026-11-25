@@ -1,0 +1,3 @@
+# B1-R6 — Dossier material candidate
+
+Exact R5 parent 5c736e8f76ba8f628c636dc867d1b910eb29c0d9 passed workflow 45582421297. Correct the more-specific dossier-head emblem surface that shadows the later general emblem treatment; align it with the established steel palette and amber border accent. Add restrained highlights to record panels and statistic surfaces, preserving existing highlighted metrics, text colors, dimensions and all progression logic. Six source replacements; no artwork or game changes. Owner requests one combined physical review after refinement. Dedicated candidate QA and visual acceptance pending. No merge or release.
