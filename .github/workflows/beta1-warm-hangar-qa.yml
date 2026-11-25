@@ -47,7 +47,7 @@ jobs:
           export CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME_BIN"
           node tests/reward-hangar-navigation-qa.mjs
-          node tests/visual-qa.mjs
+          node tests/beta1-warm-hangar-browser-qa.mjs
       - name: Install Android SDK 36 and build tools
         run: |
           set -euo pipefail
