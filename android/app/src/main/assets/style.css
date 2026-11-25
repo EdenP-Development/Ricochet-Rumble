@@ -1429,9 +1429,12 @@ html,body{font-family:Roboto,'Noto Sans',system-ui,-apple-system,Arial,sans-seri
   overflow-x:hidden;
   overflow-y:auto;
   overscroll-behavior:contain;
-  scrollbar-width:none;
+  scrollbar-width:thin;
+  scrollbar-color:#78a6b1 #142732;
 }
-#menu .home-actions::-webkit-scrollbar{display:none}
+#menu .home-actions::-webkit-scrollbar{width:5px}
+#menu .home-actions::-webkit-scrollbar-thumb{background:#78a6b1;border-radius:3px}
+#menu .home-actions::-webkit-scrollbar-track{background:#142732}
 #menu .premium-menu-intro{display:flex;flex-direction:column;gap:clamp(4px,.8dvh,9px);min-width:0;flex:0 0 auto}
 #menu .premium-menu-eyebrow{
   display:flex;align-items:center;gap:9px;

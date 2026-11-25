@@ -1,0 +1,115 @@
+name: Sector Rebound B1-R3 - Home scroll A/B and Android QA
+on:
+  push:
+    branches:
+      - polish/beta1-home-scroll-r3-2026-11-25
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sr-b1-r3-home-scroll-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  r3-home-scroll-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Verify isolated CSS changes, canonical game, saves and LAN
+        run: |
+          set -euo pipefail
+          git fetch origin audit/beta1-refinement-baseline-2026-11-25 --no-tags
+          node tests/smoke.mjs
+          node tests/scored-match-kernel.mjs
+          node tests/save-backup.mjs
+          node tests/dossier.mjs
+          node tests/lan-room-state-d3-a0.mjs
+          node tests/test-signer-contract.mjs
+      - name: Five-size baseline/current computed CSS A/B and full visual regression
+        run: |
+          set -euo pipefail
+          npm install --no-save --ignore-scripts --no-audit playwright-core@1.56.1
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          node tests/beta1-r3-home-scroll-browser-qa.mjs
+          node tests/beta1-r2-mode-cascade-browser-qa.mjs
+          node tests/beta1-match-arc-browser-qa.mjs
+          node tests/beta1-insignia-browser-qa.mjs
+          node tests/beta1-mode-cards-browser-qa.mjs
+          node tests/beta1-warm-hangar-browser-qa.mjs
+          node tests/ui-layout-geometry-v0948.mjs
+      - name: Install Android SDK 36
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          test -n "$sdk"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+      - name: Compile existing offline Pixi runtime
+        run: |
+          set -euo pipefail
+          npm --prefix hybrid-ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+      - name: Build separate non-public Android visual-review APK
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug -PsrSpudacusStartupQA=true
+      - name: Verify APK package, exact art, and unchanged gameplay
+        run: |
+          set -euo pipefail
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > "$RUNNER_TEMP/b1-mode-cards-cert.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "name='com.playereden.ricochetrumble.spudacusqa'"
+          for file in game.js index.html style.css scored-match.js dossier.js save-backup.js; do
+            cmp "web/$file" <(unzip -p "$apk" "assets/$file")
+          done
+          cmp web/assets/m12/hangar-warm-empty-v1.svg <(unzip -p "$apk" "assets/assets/m12/hangar-warm-empty-v1.svg")
+          for mode in cqc ffa tdm custom; do
+            cmp "web/assets/m12/mode-$mode-study-v1.svg" <(unzip -p "$apk" "assets/assets/m12/mode-$mode-study-v1.svg")
+          done
+          for emblem in field vector ace command; do
+            cmp "web/assets/m12/insignia-$emblem-study-v1.svg" <(unzip -p "$apk" "assets/assets/m12/insignia-$emblem-study-v1.svg")
+          done
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+          mkdir -p dist
+          cp "$apk" dist/Sector-Rebound-B1-R3-Home-Scroll-Review.apk
+          {
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "APP_ID=com.playereden.ricochetrumble.spudacusqa"
+            echo "BASE_PR=160"
+            echo "CSS_CASCADE_SCOPE=HOME_SCROLL_ONLY"
+            echo "APP_RUNTIME_GAME_JS_UNCHANGED=true"
+            echo "MATCH_ARC_PRESENTATION_ONLY=true"
+            echo "SOLO_WATCH_READ_ONLY=true"
+            echo "SCORED_RULES_CHANGED=false"
+            echo "INSIGNIA_ART_ORIGINAL_BLOBS=5443b63d2c3acd4a81f165d607a96845df8d47e8,6de10eccc3d34bcbb5aa6dc470868ea625f1637e,708f7a07753d6025b2027b6d1a76bf87cb119514,a68965cd619f25514978b305e0d36feaa0cb3267"
+            echo "MODE_ART_ORIGINAL_BLOBS=2a2e1913b8c5eae2548866b9bb300b7a4b90a7aa,01b600fe48a1d5c4ff7b994aa323cda42bad9f8b,e9f4ee39002bac2072a5f4bb8d107ee6ffbef6cf,d085dee30f92ead686aac2c9c22e3188a4092423"
+            echo "APK_SHA256=$(sha256sum dist/Sector-Rebound-B1-R3-Home-Scroll-Review.apk | cut -d ' ' -f1)"
+            echo "SIGNER=DISPOSABLE_DEBUG_NOT_PUBLIC_BETA"
+            echo "GAMEPLAY_AI_TDM_CAMERA_SAVE_UNCHANGED=true"
+            echo "OWNER_VISUAL_APPROVAL=PENDING"
+          } > dist/verification.txt
+      - name: Archive review APK, Chrome screenshots and receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sector-Rebound-B1-R3-Home-Scroll-${{ github.run_id }}
+          path: |
+            dist/
+            qa-results/
+            qa-screens/
+          if-no-files-found: warn
+          retention-days: 14
