@@ -1,6 +1,6 @@
 # Sector Rebound — Spudacus startup v1.0 isolated adoption
 
-**Development slice:** November 25, 2026. **State:** isolated source and APK QA; owner physical approval **PENDING**. This is a standalone Spudacus title, **not** GridMates.
+**Development slice:** November 25, 2026. **State:** second isolated timing-review build after owner physically confirmed the original splash appeared correctly but felt too short; revised timing acceptance **PENDING**. This is a standalone Spudacus title, **not** GridMates.
 
 ## Approved upstream material
 
@@ -16,7 +16,7 @@ Sector Rebound's native Java `MainActivity` hosts one offline WebView and LAN TC
 
 - **Standalone-only**: Spudacus → original Sector Rebound main menu. No GridMates/EP/EPS.
 - Warm cream **#FAE7CD**, centered original aspect-fit PNG with transparent background, max 420dp width, 82% screen width, max 260dp height and 24dp margin, considering Android system window insets.
-- Fade in **250ms**, full display **1000ms**, fade out **250ms**; nominal **1.5 seconds** total, silent.
+- Fade in **250ms**, full display **2000ms**, fade out **250ms**; nominal **2.5 seconds** total, silent. This is a **Sector Rebound-specific trial adjustment** to the shared 1.5-second standard after direct physical owner feedback; do not change the centralized standard or other games.
 - Tapping anywhere and Android Back skip the *entire remainder*. It consumes pointer events above the WebView. A real accessibility click also skips.
 - Android disabled animators/reduced motion: skip immediately; no animation. Missing or undecodable PNG: bypass and show the game.
 - **Cold launch only** (`savedInstanceState == null`); `onStop()` removes the overlay, so ordinary resume doesn't replay. Existing `configChanges` declaration prevents orientation restart; no second splash.
@@ -28,12 +28,12 @@ Sector Rebound's native Java `MainActivity` hosts one offline WebView and LAN TC
 - Exact asset identical to upstream Git blob: **PASS** (Git object SHA matched at source/destination).
 - `tests/spudacus-startup-contract.mjs`: checks full PNG SHA-256, runtime asset path, standalone-only mark, fade timings, gesture/Back/lifecycle/reduced-motion behavior and web/Android game parity. **Static/source contract only**, not a device instrumentation pass.
 - **PASS, actual GitHub Actions**: [Android workflow #45554448115](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45554448115), source SHA `ca46d3bcc9a8f679f1788ce736efd8a715fd3b52`. [Real isolated APK and verification receipt artifact #14994769142](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45554448115/artifacts/14994769142). The workflow built offline Pixi assets, ran game/save/LAN regressions, compiled the native Android APK, verified package/signature, the exact pinned PNG bytes inside APK, byte-identical WebView game files, and expected native class in DEX. **No native emulator or real-device interaction was executed**; skip, focus, orientation and actual timing remain owner phone gates.
-- Still **PENDING on device**: exact visual scale/readability, real wall-clock 1.5-second duration, tap/Back skip while active, reduced-motion setting, TalkBack semantics/focus, offline cold startup, no replay on Home/Resume or orientation, resource failure fallback and thermal/startup overhead. Automated source checks are not substitutes for owner phone QA.
+- Still **PENDING on device**: exact visual scale/readability, real wall-clock 2.5-second duration, tap/Back skip while active, reduced-motion setting, TalkBack semantics/focus, offline cold startup, no replay on Home/Resume or orientation, resource failure fallback and thermal/startup overhead. Automated source checks are not substitutes for owner phone QA.
 - No Google Play/itch.io release and no M13 draft promotion. Local beta private-signing certificate was separately verified in Actions, but this QA APK **does not use it**.
 
 ## Owner's next internal playtest
 
-Install only the isolated `Sector-Rebound-Spudacus-Startup-Visual-QA.apk` from the verified workflow artifact. Leave your regular Sector Rebound and M13 A/B apps intact. Cold-start to observe Spudacus for about 1.5 seconds then existing main menu; reopen after Home/Resume and change orientation; separately force-close and reopen for another genuine cold launch. Check skip once by touch and once by Android Back. Check sound remains off during intro and existing game controls/menus, Dossier and play remain functional. Report screenshots or a video plus any crop/scale/timing issues. If Android rejects a repeated isolated debug build due to signature mismatch, only the separate `.spudacusqa` package is disposable.
+Install only the isolated `Sector-Rebound-Spudacus-Startup-Visual-QA.apk` from the verified workflow artifact. Leave your regular Sector Rebound and M13 A/B apps intact. Cold-start to observe Spudacus for about 2.5 seconds then existing main menu; reopen after Home/Resume and change orientation; separately force-close and reopen for another genuine cold launch. Check skip once by touch and once by Android Back. Check sound remains off during intro and existing game controls/menus, Dossier and play remain functional. Report screenshots or a video plus any crop/scale/timing issues. If Android rejects a repeated isolated debug build due to signature mismatch, only the separate `.spudacusqa` package is disposable.
 
 After owner approval, adapt the exact same asset and component to the approved mainline Android launch at a normal milestone, then rerun identity/signer/save and existing M13 gameplay verification. Do **not** equate this isolated QA to mainline adoption or physical signoff.
 
