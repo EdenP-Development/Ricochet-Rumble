@@ -1,0 +1,3 @@
+# B1-R4 — Home material hierarchy
+
+Based on exact verified R3 `906ae9dd8c35391264e72727aafbee8986c0fc35` and actual artifact #15003963839, inspected candidate 915x412. Title and amber CTA hierarchy are already strong; preserve composition. Seven existing CSS declarations receive restrained title shadow, amber button bevel and secondary steel surface highlights. No dimension, positioning, font size, HTML, art, gameplay or save changes. R3 comparison JSON shows zero overflow at all five tested sizes; scrollbar is preventative only. Candidate appearance and regression QA pending; no merge or publication.
