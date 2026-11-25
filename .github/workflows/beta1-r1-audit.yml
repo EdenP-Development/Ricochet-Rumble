@@ -1,0 +1,77 @@
+name: Sector Rebound B1-R1 - Current candidate UX and CSS audit
+on:
+  push:
+    branches:
+      - audit/beta1-refinement-baseline-2026-11-25
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sector-b1-r1-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-current-screen-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Assert audit branch does not modify game or Android runtime
+        run: |
+          set -euo pipefail
+          git fetch origin feature/beta1-match-arc-solo-watch-2026-11-25 --no-tags
+          changed="$(git diff --name-only origin/feature/beta1-match-arc-solo-watch-2026-11-25...HEAD)"
+          printf '%s\n' "$changed"
+          test -n "$changed"
+          if printf '%s\n' "$changed" | grep -Ev '^(tests/beta1-r1-source-inventory.mjs|docs/BETA1_R1_CURRENT_HEAD_SCREEN_AUDIT_2026-11-25.md|.github/workflows/beta1-r1-audit.yml)$'; then
+            echo 'Audit branch unexpectedly changed runtime'; exit 1
+          fi
+      - name: Current CSS selectors, screen inventory and source parity
+        run: node tests/beta1-r1-source-inventory.mjs
+      - name: Install actual Chromium for diagnostic screen capture
+        run: |
+          set -euo pipefail
+          npm install --no-save --ignore-scripts --no-audit playwright-core@1.56.1
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          echo "CHROME_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+      - name: Capture full five-landscape plus portrait current-head geometry
+        continue-on-error: true
+        run: node tests/ui-layout-geometry-v0948.mjs
+      - name: Capture verified preceding visual subflows at current exact source
+        run: |
+          set -euo pipefail
+          node tests/beta1-warm-hangar-browser-qa.mjs
+          node tests/beta1-mode-cards-browser-qa.mjs
+          node tests/beta1-insignia-browser-qa.mjs
+          node tests/beta1-match-arc-browser-qa.mjs
+      - name: Publish audit receipt and geometry issue counts
+        if: always()
+        run: |
+          mkdir -p qa-results/beta1-r1
+          {
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "BASE=feature/beta1-match-arc-solo-watch-2026-11-25"
+            echo "SCOPE=DIAGNOSTIC_ONLY_NO_RUNTIME_MODIFICATIONS"
+            echo "OWNER_PHONE_ACCEPTANCE=PENDING"
+            echo "PUBLIC_BETA_RELEASE=NOT_AUTHORIZED"
+            sha256sum web/style.css web/game.js web/index.html
+          } > qa-results/beta1-r1/verification.txt
+          if test -f qa-layout/report.json; then
+            node -e "const x=require('./qa-layout/report.json');console.log('CURRENT_LAYOUT_ISSUES',JSON.stringify(x.totals))"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Sector-Rebound-B1-R1-Current-Head-Audit-${{ github.run_id }}
+          path: |
+            qa-layout/
+            qa-results/
+            qa-screens/
+          if-no-files-found: warn
+          retention-days: 14
