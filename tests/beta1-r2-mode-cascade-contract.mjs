@@ -31,6 +31,6 @@ assert.equal(current.slice(newTail),original.slice(tail),'All post-card styles b
 assert.ok(newBlock.includes('#menu #panel .mode-screen .mode-grid .mode-mission{'));
 assert.ok(newBlock.includes('#menu #panel .mode-screen .mode-grid .mode-mission .mode-copy strong{color:#f4f6f1}'));
 assert.ok(newBlock.includes('#menu #panel .mode-screen .mode-grid .mode-mission .mode-copy small{color:#bdd4d6}'));
-assert.ok(!newBlock.includes('!important'),'No CSS escalation via !important');
+assert.equal(newBlock.split('!important').length,oldBlock.split('!important').length,'No new !important; retain original reduced-motion fallbacks');
 for(const id of ['cqc','ffa','tdm','custom'])assert.ok(newBlock.includes('mode-'+id+'-study-v1.svg'));
 console.log('BETA1_R2_MODE_CASCADE_CONTRACT_PASS '+JSON.stringify({changed,appIdUntouched:true,gameplayUntouched:true,oldBlockLength:oldBlock.length,newBlockLength:newBlock.length}));
