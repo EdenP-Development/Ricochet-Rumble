@@ -1,0 +1,57 @@
+name: SR-HUB-09B recover verified lock and bundle membership
+on:
+  push:
+    branches: [build/sr-hub-09-dependency-audit-2026-11-27]
+    paths: ['.github/workflows/sr-hub-09-lock-recovery.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Recover exact public dependency metadata from verified evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15177004760/zip > "$RUNNER_TEMP/dep.zip"
+          echo '565ec35a235f7b43140359a371dcf169882acd6d8bc59734aa96756908879363  '"$RUNNER_TEMP/dep.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/dep.zip" package-lock.json > hybrid-ui/package-lock.json
+          node -e 'const l=require("./hybrid-ui/package-lock.json"); if(l.lockfileVersion!==3)process.exit(1); console.log("LOCK_JSON_BEGIN");console.log(JSON.stringify(l));console.log("LOCK_JSON_END")'
+          sha256sum hybrid-ui/package-lock.json
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+      - name: Measure actual bundle input membership
+        run: |
+          set -euo pipefail
+          mkdir -p qa-results/sr-hub-09b
+          (cd hybrid-ui && node_modules/.bin/esbuild src/menu.js --bundle --minify --format=iife --target=es2020 --outfile=../web/hybrid-menu-pixi.bundle.js --metafile=../qa-results/sr-hub-09b/metafile.json)
+          test "$(sha256sum web/hybrid-menu-pixi.bundle.js | cut -d ' ' -f1)" = c090b88d142627695b1c450db0df6945a2744d9e6a7f2455ea785204f7867740
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const m=JSON.parse(fs.readFileSync('qa-results/sr-hub-09b/metafile.json'));
+          const pkgs=new Map();
+          for(const o of Object.values(m.outputs))for(const [p,v] of Object.entries(o.inputs)){
+            const match=p.match(/^node_modules\/(@[^/]+\/[^/]+|[^/]+)/);
+            if(!match||!v.bytesInOutput)continue;
+            pkgs.set(match[1],(pkgs.get(match[1])||0)+v.bytesInOutput);
+          }
+          const rows=[...pkgs].sort().map(([name,bytes])=>{const dir='hybrid-ui/node_modules/'+name;const p=JSON.parse(fs.readFileSync(dir+'/package.json'));return {name,version:p.version,license:p.license,bytes,noticeFiles:fs.readdirSync(dir).filter(x=>/^(licen[cs]e|copying|notice|copyright)/i.test(x))}});
+          fs.writeFileSync('qa-results/sr-hub-09b/bundled-packages.json',JSON.stringify(rows,null,2));
+          console.log('BUNDLED_PACKAGES '+JSON.stringify(rows));
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-09B-lock-and-membership
+          path: |
+            hybrid-ui/package-lock.json
+            qa-results/sr-hub-09b/
+          if-no-files-found: error
+          retention-days: 14
