@@ -1,0 +1,102 @@
+name: SR-HUB-05 unsigned beta staging
+on:
+  push:
+    branches: [build/sr-hub-05-beta-staging-2026-11-27]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Runtime isolation and regression
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          node tests/smoke.mjs
+          node tests/scored-match-kernel.mjs
+          node tests/save-backup.mjs
+          node tests/dossier.mjs
+          node tests/lan-room-state-d3-a0.mjs
+          node tests/test-signer-contract.mjs
+      - name: Install Android SDK and build offline menu
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          npm --prefix hybrid-ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+      - name: Reject ambiguous or mixed build lanes
+        working-directory: android
+        run: |
+          set -euo pipefail
+          reject() {
+            local expected="$1"; shift
+            if gradle --no-daemon :app:tasks "$@" > "$RUNNER_TEMP/negative.log" 2>&1; then
+              echo 'Unexpected successful configuration'; exit 1
+            fi
+            grep -F "$expected" "$RUNNER_TEMP/negative.log"
+          }
+          reject 'Beta versions require srBetaStaging=true' -PsrBetaVersionCode=1
+          reject 'Beta staging requires valid explicit versionCode' -PsrBetaStaging=true
+          reject 'Beta staging requires explicit beta versionName' -PsrBetaStaging=true -PsrBetaVersionCode=1 -PsrBetaVersionName=invalid
+          reject 'Beta staging cannot mix existing preview identities' -PsrBetaStaging=true -PsrSpudacusStartupQA=true
+          reject 'Beta staging cannot mix existing preview identities' -PsrBetaStaging=true -PsrHybridLabPackage=true
+      - name: Build unsigned non-debug beta staging
+        working-directory: android
+        run: |
+          set -euo pipefail
+          gradle --no-daemon :app:assembleBetaStaging -PsrBetaStaging=true -PsrBetaVersionCode=1 -PsrBetaVersionName=0.9.80-beta.1
+      - name: Verify exact unsigned identity and packaged assets
+        run: |
+          set -euo pipefail
+          apk="$(find android/app/build/outputs/apk/betaStaging -name '*.apk' -type f)"
+          test -f "$apk"
+          sdk="$ANDROID_HOME/build-tools/35.0.0"
+          mkdir -p dist
+          "$sdk/aapt" dump badging "$apk" > dist/beta-badging.txt
+          grep -F "name='com.playereden.ricochetrumble.beta' versionCode='1' versionName='0.9.80-beta.1'" dist/beta-badging.txt
+          if grep -F 'application-debuggable' dist/beta-badging.txt; then exit 1; fi
+          if "$sdk/apksigner" verify "$apk" > dist/unsigned-check.txt 2>&1; then echo 'Unexpected signed APK'; exit 1; fi
+          for name in game.js index.html style.css scored-match.js dossier.js save-backup.js; do
+            cmp "web/$name" <(unzip -p "$apk" "assets/$name")
+          done
+          for name in web/assets/m12/*.svg; do
+            cmp "$name" <(unzip -p "$apk" "assets/${name#web/}")
+          done
+          test "$(unzip -p "$apk" assets/branding/spudacus-v1-full-transparent.png | sha256sum | cut -d ' ' -f1)" = '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25'
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+          cp "$apk" dist/Sector-Rebound-Beta1-UNSIGNED-STAGING.apk
+          sha256sum dist/Sector-Rebound-Beta1-UNSIGNED-STAGING.apk > dist/SHA256SUMS
+          printf 'SOURCE=%s\nCHANNEL=unsigned-staging\nOWNER_APPROVAL=PENDING\nNOT_INSTALLABLE_OR_PUBLIC=true\n' "$GITHUB_SHA" > dist/verification.txt
+      - name: Verify ordinary debug lane remains unchanged
+        working-directory: android
+        run: gradle --no-daemon :app:assembleDebug -PsrSpudacusStartupQA=true
+      - name: Verify existing isolated review identity
+        run: |
+          set -euo pipefail
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "name='com.playereden.ricochetrumble.spudacusqa' versionCode='50'"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-05-UNSIGNED-STAGING-NOT-FOR-INSTALL
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
