@@ -1,0 +1,53 @@
+name: SR-HUB-13 original screenshot recovery
+on:
+  push:
+    branches: [docs/sr-hub-13-storefront-2026-11-27]
+    paths: ['.github/workflows/sr-hub-13-screenshot-recovery.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Recover original R10 browser screenshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15010503734/zip > "$RUNNER_TEMP/r10.zip"
+          echo 'cc69148dd87fcc8bbbff4dc86ff8dbb3c5ec2fd97910713d96ee39a8aa501f61  '"$RUNNER_TEMP/r10.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import os,zipfile,pathlib,hashlib,struct,json
+          root=pathlib.Path('qa-results/sr-hub-13')
+          root.mkdir(parents=True,exist_ok=True)
+          records=[]
+          with zipfile.ZipFile(pathlib.Path(os.environ['RUNNER_TEMP'])/'r10.zip') as z:
+              names=z.namelist()
+              assert len(names)==len(set(names))
+              for n in sorted(names):
+                  p=pathlib.PurePosixPath(n)
+                  if p.suffix.lower()!='.png' or not p.parts or p.parts[0] not in ('qa-results','qa-screens'): continue
+                  assert not p.is_absolute() and '..' not in p.parts
+                  data=z.read(n)
+                  assert data[:8]==b'\x89PNG\r\n\x1a\n' and data[12:16]==b'IHDR'
+                  w,h=struct.unpack('>II',data[16:24])
+                  assert w>0 and h>0
+                  dest=root/'originals'/p
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  dest.write_bytes(data)
+                  records.append(dict(path=n,width=w,height=h,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),status='unreviewed browser QA candidate'))
+          assert records,'no original screenshots recovered'
+          (root/'inventory.json').write_text(json.dumps(dict(source='80cd22b35b9bb285751ef82e69e1d63f3551edfe',run=45592089117,artifact=15010503734,scope='historical browser QA only; may contain synthetic fixtures or baseline views; not approved storefront assets',screenshots=records),indent=2)+'\n')
+          print('SR_HUB_13_RECOVERY_COUNT',len(records))
+          for r in records: print(r['path'],r['width'],r['height'],r['sha256'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-13-UNREVIEWED-ORIGINAL-SCREENSHOTS
+          path: qa-results/sr-hub-13/
+          if-no-files-found: error
+          retention-days: 14
