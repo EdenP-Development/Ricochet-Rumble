@@ -1,0 +1,35 @@
+name: SR-HUB-12B historical receipt evidence
+on:
+  push:
+    branches: [build/sr-hub-12-release-receipt-2026-11-27]
+    paths: ['.github/workflows/sr-hub-12b-evidence.yml','tools/sr-hub-12b-historical-evidence.mjs']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Verify exact historical evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p qa-results/sr-hub-12b
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/runs/45957668097 > "$RUNNER_TEMP/run.json"
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15179397771 > "$RUNNER_TEMP/artifact.json"
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15179397771/zip > "$RUNNER_TEMP/staging.zip"
+          unzip -p "$RUNNER_TEMP/staging.zip" Sector-Rebound-Beta1-UNSIGNED-STAGING.apk > "$RUNNER_TEMP/staging.apk"
+          node tools/sr-hub-12b-historical-evidence.mjs docs/receipts/sr-beta1-unsigned-historical.json "$RUNNER_TEMP/run.json" "$RUNNER_TEMP/artifact.json" "$RUNNER_TEMP/staging.zip" "$RUNNER_TEMP/staging.apk" | tee qa-results/sr-hub-12b/evidence.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-12B-historical-evidence
+          path: qa-results/sr-hub-12b/
+          if-no-files-found: error
+          retention-days: 14

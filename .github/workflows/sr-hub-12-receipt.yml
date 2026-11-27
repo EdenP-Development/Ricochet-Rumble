@@ -1,0 +1,21 @@
+name: SR-HUB-12 release receipt contract
+on:
+  push:
+    branches: [build/sr-hub-12-release-receipt-2026-11-27]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - run: node tests/sr-hub-12-receipt.mjs
+      - name: Historical unsigned receipt must remain blocked
+        run: |
+          node tools/sr-hub-12-release-receipt.mjs docs/receipts/sr-beta1-unsigned-historical.json
+          if node tools/sr-hub-12-release-receipt.mjs docs/receipts/sr-beta1-unsigned-historical.json --require-complete; then exit 1; fi

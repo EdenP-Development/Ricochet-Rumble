@@ -1,0 +1,27 @@
+// Verify exact historical unsigned build artifact; never promotes evidence to signed gates.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import {assess} from './sr-hub-12-release-receipt.mjs';
+const [receiptPath,runPath,artifactPath,zipPath,apkPath]=process.argv.slice(2);
+const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const receipt=read(receiptPath),run=read(runPath),artifact=read(artifactPath);
+const c=receipt.candidate;
+assert.equal(assess(receipt).schemaValid,true);
+assert.equal(assess(receipt).structurallyComplete,false);
+assert.equal(c.scope,'unsigned');
+assert.equal(String(run.id),c.run);
+assert.equal(run.head_sha,c.source);
+assert.equal(run.conclusion,'success');
+assert.equal(run.path,'.github/workflows/sr-hub-09-locked-beta-staging.yml');
+assert.equal(run.head_branch,'build/sr-hub-09-dependency-audit-2026-11-27');
+assert.equal(run.repository.full_name,'EdenP-Development/Ricochet-Rumble');
+assert.equal(artifact.id,15179397771);
+assert.equal(artifact.workflow_run.id,run.id);
+assert.equal(artifact.expired,false);
+assert.equal(artifact.digest,'sha256:c74f103efc5d317713e3a8d02e38ee831a94d09e3acf3310407e08b854829def');
+assert.equal('sha256:'+hash(zipPath),artifact.digest);
+assert.equal(hash(apkPath),c.apkSha256);
+assert.equal(c.apkSha256,'a17cabcda02c8f9a25ab3e2f1be8623c89b8320459d5c106c0bb3aba0a078e92');
+console.log(JSON.stringify({status:'historical_unsigned_evidence_verified',source:c.source,run:run.id,artifact:artifact.id,zipSha256:hash(zipPath),apkSha256:hash(apkPath),releaseGatePromotion:false},null,2));
