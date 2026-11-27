@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-11B.3:** Diagnostic run 45962268829 FAILED connected equip-paint: CDP connection closed after successful reload/readiness/Hangar click. Cause unproven. Separate core offline probe and workflow 66fcc447c83093fe08556f397e253535eb2e8d8d uses explicit synthetic valid Moss paint localStorage fixture, keeps exact export/online-offline/Practice/request assertions, archives bounded logcat; original UI probe retained and unresolved. Runs: 45962857576 in_progress pending; 45962857367 in_progress pending. Core result cannot establish cosmetic UI acceptance or native socket isolation. No runtime changes, signing, merge or publication.
+
+
 > **2026-11-27 SR-HUB-11B.2:** Corrected run 45961700743 FAILED CDP Runtime.evaluate timeout (12s), after isolated APK build and emulator install; no completed stage evidence. Prior backup correction not established. Probe a70152d45b6445ef71e144471f2ab24e8f58e6ad increases bounded command timeout to 45s, enables Page domain, asserts reload readiness and logs per-action checkpoints; assertions retained. Runs: 45962268839 in_progress pending; 45962268829 in_progress pending. No production changes or native network assurance.
 
 
