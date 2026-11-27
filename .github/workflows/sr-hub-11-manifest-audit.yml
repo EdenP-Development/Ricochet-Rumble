@@ -1,0 +1,61 @@
+name: SR-HUB-11 exact APK permission and network surface audit
+on:
+  push:
+    branches: [audit/sr-hub-11-privacy-network-2026-11-27]
+    paths: ['.github/workflows/sr-hub-11-manifest-audit.yml','android/app/src/main/AndroidManifest.xml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Recover exact historical unsigned beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p qa-results/sr-hub-11
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15179397771/zip > "$RUNNER_TEMP/staging.zip"
+          echo 'c74f103efc5d317713e3a8d02e38ee831a94d09e3acf3310407e08b854829def  '"$RUNNER_TEMP/staging.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/staging.zip" Sector-Rebound-Beta1-UNSIGNED-STAGING.apk > "$RUNNER_TEMP/staging.apk"
+          echo 'a17cabcda02c8f9a25ab3e2f1be8623c89b8320459d5c106c0bb3aba0a078e92  '"$RUNNER_TEMP/staging.apk" | sha256sum -c -
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "build-tools;35.0.0"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump permissions "$RUNNER_TEMP/staging.apk" > qa-results/sr-hub-11/permissions.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump xmltree "$RUNNER_TEMP/staging.apk" AndroidManifest.xml > qa-results/sr-hub-11/manifest.txt
+          cat qa-results/sr-hub-11/permissions.txt
+          python3 - <<'PY'
+          import pathlib,re,json
+          out=pathlib.Path('qa-results/sr-hub-11')
+          p=(out/'permissions.txt').read_text()
+          m=(out/'manifest.txt').read_text()
+          expected={'android.permission.INTERNET','android.permission.ACCESS_NETWORK_STATE','android.permission.ACCESS_WIFI_STATE'}
+          actual=set(re.findall(r"uses-permission(?:-sdk-\d+)?: name='([^']+)'",p))
+          assert actual==expected,(actual,expected)
+          assert not re.search(r'\bE: (provider|service|receiver)\b',m), 'unexpected packaged components'
+          assert len(re.findall(r'\bE: activity\b',m))==1
+          for name in ('allowBackup','usesCleartextTraffic'):
+              line=next(l for l in m.splitlines() if 'android:'+name+'(' in l)
+              assert re.search(r'\(type 0x12\)0x0\b',line),line
+          report={'permissions':sorted(actual),'allowBackup':False,'usesCleartextTraffic':False,'activity_count':1,'other_component_count':0,'scope':'packaged manifest only; no runtime egress, encryption, or legal assurance'}
+          (out/'summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('SR_HUB_11_MANIFEST_PASS '+json.dumps(report))
+          PY
+      - name: Source network surface evidence
+        run: |
+          set -euo pipefail
+          java=android/app/src/main/java/com/playereden/ricochetrumble/MainActivity.java
+          grep -nE 'setBlockNetworkLoads|setAllowFileAccess|setAllowUniversalAccessFromFileURLs|setAllowFileAccessFromFileURLs|setMixedContentMode|shouldOverrideUrlLoading|addJavascriptInterface|new Socket|new ServerSocket|_rrtank|ACTION_SEND|loadUrl' "$java" > qa-results/sr-hub-11/native-network-surface.txt
+          grep -nE 'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|https?://' web/game.js web/index.html web/save-backup.js > qa-results/sr-hub-11/web-network-surface.txt || test "$?" = 1
+          cat qa-results/sr-hub-11/native-network-surface.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-11-manifest-and-network-surface
+          path: qa-results/sr-hub-11/
+          if-no-files-found: error
+          retention-days: 14
