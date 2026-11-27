@@ -2,6 +2,7 @@ name: SR-HUB-11 exact APK permission and network surface audit
 on:
   push:
     branches: [audit/sr-hub-11-privacy-network-2026-11-27]
+    paths: ['.github/workflows/sr-hub-11-manifest-audit.yml','android/app/src/main/AndroidManifest.xml']
 permissions:
   contents: read
   actions: read
