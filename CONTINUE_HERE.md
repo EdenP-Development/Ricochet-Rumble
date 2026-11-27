@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-13C:** Recovered screenshot artifact 15184167338 from successful run 45968598825; actual ZIP SHA256 6a1442110ac4fd40e9fd2a5adaa1fa34fdb38bc4eef7fc7f6d1af49075c7ef72 and all 163 PNG hashes verified locally. Visually inspected 17-image contact sheet; shortlist documented d0b3a6094482f995814f0fd9f1401cb58d2357fd on draft #181. Home/Hangar supporting candidates; sparse combat and synthetic results require genuine Android recapture. No LAN claims, generated screenshots, final art approval or publication. Temporary download is not durable owner archive. Offline/network/version and rights gates remain open.
+
+
 > **2026-11-27 SR-HUB-13:** Archive contract 45967880564 PASS six synthetic cases; durable copies unconfirmed. Draft #181 storefront plan 1c3384d098b015bea87255b748ecf329455debf6 and original R10 screenshot recovery workflow c59d095; actual browser PNGs only, no owner visual acceptance or final signed Android screenshots. Recovery runs [{"id":45968598825,"status":"completed","conclusion":"success"}]. No new artwork, publication, signing, or merges. Offline run 45963585419 last observed in progress; version pair Maven blocked, original master/Colord/native LAN/privacy gates remain.
 
 
