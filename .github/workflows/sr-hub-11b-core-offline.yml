@@ -1,0 +1,68 @@
+name: SR-HUB-11B.3 isolated core offline WebView
+on:
+  push:
+    branches: [audit/sr-hub-11-privacy-network-2026-11-27]
+    paths: ['.github/workflows/sr-hub-11b-core-offline.yml','qa/sr-hub-11b-core-offline.mjs','tools/sr-hub-11b-core-offline.sh']
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build isolated disposable APK
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          python3 - <<'PY'
+          import pathlib
+          p=pathlib.Path('android/app/src/main/java/com/playereden/ricochetrumble/MainActivity.java')
+          s=p.read_text(); anchor='        web = new WebView(this);'
+          assert s.count(anchor)==1 and 'setWebContentsDebuggingEnabled' not in s
+          p.write_text(s.replace(anchor,'        if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) WebView.setWebContentsDebuggingEnabled(true);\n'+anchor))
+          p=pathlib.Path('android/app/build.gradle')
+          s=p.read_text(); anchor="applicationId 'com.playereden.ricochetrumble'"
+          assert s.count(anchor)==1
+          p.write_text(s.replace(anchor,"applicationId 'com.playereden.ricochetrumble.privacyqa'"))
+          PY
+          (cd android && gradle --no-daemon :app:assembleDebug)
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android/app/build/outputs/apk/debug/app-debug.apk > "$RUNNER_TEMP/badging"
+          grep -F "name='com.playereden.ricochetrumble.privacyqa'" "$RUNNER_TEMP/badging"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          script: bash tools/sr-hub-11b-core-offline.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SR-HUB-11B3-core-offline-evidence
+          path: qa-results/sr-hub-11b/
+          if-no-files-found: warn
+          retention-days: 14
