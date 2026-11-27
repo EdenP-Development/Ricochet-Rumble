@@ -1,0 +1,24 @@
+# SR-HUB-03 — Data handling register (draft, 2026-11-27)
+
+Reviewed R10 source 80cd22b35b9bb285751ef82e69e1d63f3551edfe; internal Android QA .spudacusqa, not signed public beta. Hub PRIVACY_STANDARDS.md and DATA_HANDLING_REGISTER template at b4d7d05bb9e8ada15fb053a584409e7532e9444c. Source findings, not exhaustive runtime or legal clearance.
+
+| Component | Data / purpose | Storage and retention | Transfer / controls | Evidence and limits |
+| --- | --- | --- | --- | --- |
+| Options | Game settings, comfort, playlist | rr-options-v06 local WebView storage | Settings and explicit portable backup | game.js; source reviewed |
+| Custom matches | Draft rules, up to five named presets (24-character names) | rr-custom-v1, rr-custom-presets-v1 | User edits/deletes presets; portable backup | game.js, save-backup.js |
+| Dossier | Aggregate match/win/loss/draw/KO/death/time counts, per-mode aggregates, bounded recent dedup keys (64); no full match replay established | rr-dossier-v1; invalid/damaged raw record may be retained separately under rr-dossier-v1-recovery-backup | Local progression and explicit export; separate damaged copy excluded from portable allowlist | dossier.js; no blanket deletion claim |
+| Hangar | Equipped paint and insignia IDs | rr-hangar-paint-v1 | Select cosmetics; export | save-backup.js |
+| Daily | UTC dates, attempts, best result and bounded recent dedup keys | rr-daily-sector-v1; backup validator limits 31 day records and 32 recent keys | Local; export | daily-sector.js and backup validation; verify actual pruning |
+| Onboarding | Completion flags | rr-coach-v0917 and rr-coach-fire-v0965-* | Local; excluded from portable allowlist | game.js |
+| Restore safety | Prior values of affected records | rr-restore-recovery-v1, rollback snapshot | Local restore safety; not in portable allowlist | save-backup.js; verify retention/reset behavior |
+| Backup | Versioned JSON text, six allowlisted stores, up to 60,000 characters; preset names and dedup identifiers may be included | User-selected external copies may outlive app | Explicit copy/share/import; Android ACTION_SEND text/plain or browser share path; external recipient under user's choice | MainActivity.java, game.js, save-backup.js; no automatic upload shown; not encrypted backup |
+| LAN discovery | Generic Sector Rebound service name, endpoint address/port | Active discovery/connection state | NSD _rrtank._tcp. and manual IP join | MainActivity.java; verify actual network reachability, cleanup, denial behavior |
+| LAN match | Lobby rules/revision/ready, input, interaction, state snapshots (actors, projectiles, vehicles, match IDs, seed, teams, scores, event, timing), spectator/queue status | Active session memory; no persisted peer history established | Direct TCP to connected peer; UTF-8 JSON lines, 32,768 character bound, role message filtering | MainActivity.java attachPeer/send; game.js serializeState/nativePacket; no TLS shown; do not imply encryption, authentication or trusted-network enforcement |
+| Device / OS | WebView and Android platform behavior, share chooser | OS-controlled caches/logs unknown | Platform processing and external recipient practices separate | No runtime capture; no blanket zero collection claim |
+| Dependencies | PixiJS 8.18.0 runtime menu, esbuild 0.25.12 build tool | Locally bundled menu | No remote SDK service established by package.json alone | hybrid-ui/package.json; resolved transitive dependencies, bundled source and logs review pending |
+
+## Permissions and configuration
+Source AndroidManifest.xml declares INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE; no other permissions in this source manifest. INTERNET enables local TCP; network/Wi-Fi state supports nearby networking. Exact merged/packaged manifest and actual necessity/denial behavior pending. allowBackup=false, usesCleartextTraffic=false; the latter does not encrypt raw sockets. MainActivity enables JavaScript and DOM storage, loads bundled local content, blocks WebView network loads, blocks file-to-file/universal access and mixed content, overrides navigation; file access itself enabled. Review bridge scope and native networking independently.
+
+## Verification status
+R10 automated saves and LAN (mock native bridge) pass; SR-HUB-02 verifies selected source/package bytes, not privacy behavior. Need exact signed candidate manifest and dependency report, synthetic WAN on/off and peer traffic observations, permission/network failure and lifecycle, local restore/export and external share controls, retention/deletion and logs review. Confirm target audience, publisher and monitored privacy/support contact; reconcile existing draft and Help notice. Public HTTPS policy and store declarations pending. No public policy approval, legal conclusion, new telemetry or code changes. Do not publish placeholders. Keep private logs and real user data out of repository.
