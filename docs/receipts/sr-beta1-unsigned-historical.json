@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "product": "Sector Rebound",
+  "channel": "itch.io/android/beta1",
+  "candidate": {
+    "source": "0d2190d0f0c02e21ff7de06c284daa3fd16f6894",
+    "apkSha256": "a17cabcda02c8f9a25ab3e2f1be8623c89b8320459d5c106c0bb3aba0a078e92",
+    "package": "com.playereden.ricochetrumble.beta",
+    "versionCode": 1,
+    "versionName": "0.9.80-beta.1",
+    "scope": "unsigned",
+    "certificateSha256": null,
+    "run": "45957668097"
+  },
+  "baseline": {
+    "kind": "first-release",
+    "previous": null,
+    "rationale": "No prior distributed .beta APK established."
+  },
+  "gates": {
+    "automated": {
+      "status": "pending"
+    },
+    "permissions": {
+      "status": "pending"
+    },
+    "runtime": {
+      "status": "pending"
+    },
+    "nativeNetwork": {
+      "status": "pending"
+    },
+    "physical": {
+      "status": "pending"
+    },
+    "saveUpgrade": {
+      "status": "pending"
+    },
+    "exportRestore": {
+      "status": "pending"
+    },
+    "rights": {
+      "status": "pending"
+    },
+    "privacy": {
+      "status": "pending"
+    },
+    "support": {
+      "status": "pending"
+    },
+    "storefront": {
+      "status": "pending"
+    },
+    "custody": {
+      "status": "pending"
+    },
+    "signerPreflight": {
+      "status": "pending"
+    },
+    "archive": {
+      "status": "pending"
+    },
+    "ownerApproval": {
+      "status": "pending"
+    }
+  },
+  "authorization": {
+    "approved": false
+  }
+}
