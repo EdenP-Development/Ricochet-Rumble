@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-12:** Draft #178 structural receipt validator + 88 synthetic fixture cases + actual historical unsigned receipt intentionally blocked, head d0ca3949740c14ed357eb745fbf0f54a97e92b92. CI [{"id":45964187218,"status":"in_progress","conclusion":null}]. All 15 final evidence gates pending for signed candidate; validator is not evidence authentication or authorization. Core offline retry 45963585419 build passed, latest job status in_progress/null; Hangar CDP and native networking still unresolved. No runtime/signing/merge/publication changes.
+
+
 > **2026-11-27 SR-HUB-11B.4:** Independent core run 45962857576 FAILED during Gradle dependency resolution: Maven Central HTTP 429; emulator not reached. Historical manifest workflow scoped to relevant changes (311d139); core workflow 57190d3d04ec2b313c64bf6f5303c322b2b4eced serializes executions, retries only explicit Maven 429 up to three attempts with bounded backoff, retains all assertions. Runs: 45963585419 in_progress pending. Hangar CDP disconnect and runtime privacy remain unresolved. No production changes, signer access, merge or publication. Proceed with independent release-receipt preparation while retaining open gates.
 
 
