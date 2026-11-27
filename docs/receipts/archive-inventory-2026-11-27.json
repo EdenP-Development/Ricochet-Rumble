@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "repository": "EdenP-Development/Ricochet-Rumble",
+  "inspectionDate": "2026-11-27",
+  "records": [
+    {
+      "run": 45592089117,
+      "id": 15010503734,
+      "name": "Sector-Rebound-B1-R10-Consolidated-45592089117",
+      "scope": "disposable debug review APK",
+      "source": "80cd22b35b9bb285751ef82e69e1d63f3551edfe",
+      "zipSha256": "cc69148dd87fcc8bbbff4dc86ff8dbb3c5ec2fd97910713d96ee39a8aa501f61",
+      "size": 20561400,
+      "expiresUtc": "2026-12-09T10:11:43Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45949255646,
+      "id": 15176401474,
+      "name": "SR-HUB-02-verification-receipts",
+      "scope": "source/package integrity receipts",
+      "source": "6a3df7ee65ffa6cc3973d7bacb73d20e01bd5355",
+      "zipSha256": "243840b4392a89f2e2452261a98d6ff8c60cd62601e3c80da541c324988c1eac",
+      "size": 3742,
+      "expiresUtc": "2026-12-11T06:01:50Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45952312100,
+      "id": 15177213496,
+      "name": "SR-HUB-06C-EMULATOR-EVIDENCE",
+      "scope": "synthetic emulator upgrade evidence",
+      "source": "db6ea74a6d3c488717c599be0b3197a5c452d4d9",
+      "zipSha256": "853461a6110966b98cac0959da86d9913cf1ed025d5227b79b3dbac151f2baaf",
+      "size": 683884,
+      "expiresUtc": "2026-12-11T06:34:49Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45957236015,
+      "id": 15178738652,
+      "name": "SR-HUB-09D-notices-and-android-dependencies",
+      "scope": "draft third-party notices",
+      "source": "ad35f992804d421586e073319034753120433698",
+      "zipSha256": "9db739badfd85927f4bb7530d64de7b21cd0d4cad8b129b55b803685e5be0f13",
+      "size": 52013,
+      "expiresUtc": "2026-12-11T07:16:52Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45957668446,
+      "id": 15178674262,
+      "name": "SR-HUB-09E-upstream-notice-evidence",
+      "scope": "unresolved upstream notice provenance",
+      "source": "0d2190d0f0c02e21ff7de06c284daa3fd16f6894",
+      "zipSha256": "915a67e2a10acc454ee915170c943b21162234579daf73c6cff2c59d0ff3eed1",
+      "size": 10001,
+      "expiresUtc": "2026-12-11T07:19:48Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45957668097,
+      "id": 15179397771,
+      "name": "SR-HUB-09C-UNSIGNED-STAGING-NOT-FOR-INSTALL",
+      "scope": "unsigned beta staging APK",
+      "source": "0d2190d0f0c02e21ff7de06c284daa3fd16f6894",
+      "zipSha256": "c74f103efc5d317713e3a8d02e38ee831a94d09e3acf3310407e08b854829def",
+      "size": 1094421,
+      "expiresUtc": "2026-12-11T07:21:26Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45958903354,
+      "id": 15179489447,
+      "name": "SR-HUB-10B-artwork-inventory",
+      "scope": "packaged artwork inventory",
+      "source": "de850935b6f5a3cb7036afef3c66c67c0ca6d160",
+      "zipSha256": "e66113f268175da165eb11750ce166d7ecf0e4443e6e12b04f3779dc94588b2d",
+      "size": 2194,
+      "expiresUtc": "2026-12-11T07:30:29Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45960033832,
+      "id": 15180352502,
+      "name": "SR-HUB-11-manifest-and-network-surface",
+      "scope": "packaged manifest evidence",
+      "source": "a520350d5af1dc0656d2ebafefb7e3212fdab3b3",
+      "zipSha256": "a658ea9fbee9219d23e8a2f1a249ca1ce941a952ca86dcf2682d1a4fdf524b3f",
+      "size": 2252,
+      "expiresUtc": "2026-12-11T07:40:27Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    },
+    {
+      "run": 45964789937,
+      "id": 15181763350,
+      "name": "SR-HUB-12B-historical-evidence",
+      "scope": "historical unsigned evidence receipt",
+      "source": "455744c4964d3ac11fff3dd84b6bf5e24034678d",
+      "zipSha256": "1ef28ca536c5772bd6098fd28c047c52dd93f397a0b1155c99f388baf70e9efa",
+      "size": 391,
+      "expiresUtc": "2026-12-11T08:19:53Z",
+      "expiredAtInspection": false,
+      "durableCopy": "unconfirmed"
+    }
+  ],
+  "scope": "Metadata only; no durable bytes or private storage confirmed."
+}
