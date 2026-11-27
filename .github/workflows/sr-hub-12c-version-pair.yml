@@ -1,0 +1,66 @@
+name: SR-HUB-12C unsigned beta version pair
+on:
+  push:
+    branches: [build/sr-hub-12c-version-rehearsal-2026-11-27]
+    paths: ['.github/workflows/sr-hub-12c-version-pair.yml','tools/sr-hub-12c-version-pair.mjs','tests/sr-hub-12c-version-pair.mjs']
+permissions:
+  contents: read
+jobs:
+  version-pair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - run: node tests/sr-hub-12c-version-pair.mjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build two unsigned nondebug beta versions
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          node tools/sr-hub-12c-version-pair.mjs 1 0.9.80-beta.1 2 0.9.80-beta.2
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          mkdir -p qa-results/sr-hub-12c
+          for v in 1 2; do
+            (cd android && gradle --no-daemon :app:assembleBetaStaging -PsrBetaStaging=true -PsrBetaVersionCode="$v" -PsrBetaVersionName="0.9.80-beta.$v")
+            apk="$(find android/app/build/outputs/apk/betaStaging -name '*.apk' -type f)"
+            test -f "$apk"
+            cp "$apk" "$RUNNER_TEMP/unsigned-$v.apk"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "qa-results/sr-hub-12c/version-$v.txt"
+            grep -F "name='com.playereden.ricochetrumble.beta' versionCode='$v' versionName='0.9.80-beta.$v'" "qa-results/sr-hub-12c/version-$v.txt"
+            if grep -F application-debuggable "qa-results/sr-hub-12c/version-$v.txt"; then exit 1; fi
+            if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk"; then exit 1; fi
+            node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+            sha256sum "$RUNNER_TEMP/unsigned-$v.apk" >> qa-results/sr-hub-12c/apk-sha256.txt
+          done
+          python3 - <<'PY'
+          import os,zipfile,hashlib
+          def members(v):
+              with zipfile.ZipFile(os.path.join(os.environ['RUNNER_TEMP'],f'unsigned-{v}.apk')) as z:
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  return {n:hashlib.sha256(z.read(n)).hexdigest() for n in names if n!='AndroidManifest.xml'}
+          assert members(1)==members(2), 'unexpected non-manifest payload change'
+          print('SR_HUB_12C_UNSIGNED_PAIR_PASS: identical non-manifest payload')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-12C-UNSIGNED-PAIR-EVIDENCE-ONLY
+          path: qa-results/sr-hub-12c/
+          if-no-files-found: error
+          retention-days: 14
