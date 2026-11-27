@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-12D:** Draft #180 head caed83c955dd417eba8d22d796693a87e8d03ecf preserves nine live artifact metadata records, owner-controlled archive procedure and local ZIP size/hash validator (six synthetic cases, CI []). R10 archive expires Dec 9 10:11:43 UTC; other eight Dec 11. Durable copies unconfirmed, no bytes transferred. Version pair run 45966120114 14 synthetic cases PASS, actual Gradle APK pair blocked Maven 429. Offline run 45963585419 last observed in progress. No signing, merge, publication.
+
+
 > **2026-11-27 SR-HUB-12C:** Historical artifact verification 45964789937 PASS. Draft #179 head 4edf3b5888223a8efe1c240cbc55ce2e3f09fb67 adds proposed unsigned beta 1 to 2 pair contract (14 synthetic cases) and real nondebug packaging/payload parity workflow; evidence only, not installable, no signer accessed. Runs [{"id":45966120114,"status":"in_progress","conclusion":null}]. Main signing still fixed v1; signed v2 requires reviewed separate lane and owner approval. Core offline 45963585419 last observed in progress; no runtime acceptance. No publication or merge.
 
 
