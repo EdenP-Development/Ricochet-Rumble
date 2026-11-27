@@ -64,10 +64,17 @@ try{
  await session.call('Page.reload');
  await pause(4000);
  const click=async action=>{assert.equal(await session.eval('(()=>{const b=document.querySelector('+JSON.stringify('button[data-action="'+action+'"]')+');if(!b||!b.getClientRects().length)return false;b.click();return true})()'),true,action);await pause(350)};
+ // Fresh installs may have no portable records. Create real saved data via the Hangar UI.
+ await click('hangar');
+ const paint=await session.eval('(()=>{const b=document.querySelector(\'button[data-paint-id="fieldgrid.moss"]\');if(!b||b.disabled||!b.getClientRects().length)return false;b.click();return true})()');
+ assert.equal(paint,true,'select unlocked Moss paint');
+ const stored=await session.eval('JSON.parse(localStorage.getItem("rr-hangar-paint-v1")||"null")?.equipped');
+ assert.equal(stored,'fieldgrid.moss','Hangar selection must persist');
+ await click('hangar-back');
  await click('dossier');assert.ok(await session.eval('!!document.querySelector("#dossier-matches")'));
  await click('backup');await click('backup-export');
- const backup=await session.eval('document.querySelector("#backup-output")?.value');
- assert.ok(typeof backup==='string'&&backup.length>20&&backup.length<=60000);
+ const evidence=await session.eval('(()=>{const v=document.querySelector("#backup-output")?.value||"";const check=window.SectorBackup?.checkedEntries(v);return {length:v.length,valid:check?.ok===true,paint:check?.ok?JSON.parse(check.entries["rr-hangar-paint-v1"]||"null")?.equipped:null,message:document.querySelector("#backup-message")?.textContent}})()');
+ assert.ok(evidence.length>20&&evidence.length<=60000&&evidence.valid&&evidence.paint==='fieldgrid.moss','backup failed: '+JSON.stringify(evidence));
  // No share/copy/import action; never archive backup payload.
  await click('backup-back');await click('dossier-back');
  await click('modes');await click('practice');
@@ -76,7 +83,7 @@ try{
  assert.ok(practice.canvas&&practice.menu);
  const external=requests.filter(r=>/^https?:|^wss?:/i.test(r.url));
  assert.equal(external.length,0,'unexpected external WebView request');
- const report={stage,state,practice,backupGenerated:true,requests:requests.map(r=>({scheme:r.url.split(':')[0],method:r.method})),externalRequests:external.length,scope:'observed CDP page reload and navigation only; not native socket capture or full combat'};
+ const report={stage,state,practice,backupGenerated:true,backupValidation:{length:evidence.length,valid:evidence.valid,paintVerified:true},requests:requests.map(r=>({scheme:r.url.split(':')[0],method:r.method})),externalRequests:external.length,scope:'observed CDP page reload and navigation only; not native socket capture or full combat'};
  fs.mkdirSync('qa-results/sr-hub-11b',{recursive:true});
  fs.writeFileSync('qa-results/sr-hub-11b/'+stage+'.json',JSON.stringify(report,null,2)+'\n');
  console.log('SR_HUB_11B_WEBVIEW_PASS '+stage+' requests='+requests.length+' external='+external.length);
