@@ -1,0 +1,64 @@
+name: SR-HUB-10B exact locked APK artwork inventory
+on:
+  push:
+    branches: [audit/sr-hub-10-artwork-provenance-2026-11-27]
+    paths: ['.github/workflows/sr-hub-10b-artwork.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Recover exact locked unsigned APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p qa-results/sr-hub-10b
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15179397771/zip > "$RUNNER_TEMP/staging.zip"
+          echo 'c74f103efc5d317713e3a8d02e38ee831a94d09e3acf3310407e08b854829def  '"$RUNNER_TEMP/staging.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/staging.zip" Sector-Rebound-Beta1-UNSIGNED-STAGING.apk > "$RUNNER_TEMP/staging.apk"
+          unzip -p "$RUNNER_TEMP/staging.zip" SHA256SUMS > "$RUNNER_TEMP/original.sha"
+          expected="$(cut -d ' ' -f1 "$RUNNER_TEMP/original.sha")"
+          [[ "$expected" =~ ^[0-9a-f]{64}$ ]]
+          echo "$expected  $RUNNER_TEMP/staging.apk" | sha256sum -c -
+          export APK="$RUNNER_TEMP/staging.apk"
+          python3 - <<'PY'
+          import os, pathlib, zipfile, hashlib, json, subprocess
+          root=pathlib.Path('android/app/src/main/assets')
+          sha=lambda b:hashlib.sha256(b).hexdigest()
+          out=pathlib.Path('qa-results/sr-hub-10b')
+          with zipfile.ZipFile(os.environ['APK']) as z:
+              names=z.namelist()
+              assert len(names)==len(set(names)), 'duplicate APK entry'
+              entries=[{'path':n,'bytes':z.getinfo(n).file_size,'sha256':sha(z.read(n))} for n in sorted(names) if not n.endswith('/')]
+              artwork=sorted(root.glob('assets/m12/*.svg'))+[root/'branding/spudacus-v1-full-transparent.png']
+              assert len(artwork)==10
+              for p in artwork:
+                  n='assets/'+p.relative_to(root).as_posix()
+                  assert z.read(n)==p.read_bytes(), n
+                  old=subprocess.check_output(['git','show','80cd22b35b9bb285751ef82e69e1d63f3551edfe:'+str(p)])
+                  assert old==p.read_bytes(), n
+              assert not any('assets/source/pilots/' in n or n.endswith('pilot_icons.v1.json') for n in names)
+              fonts=[n for n in names if n.lower().endswith(('.ttf','.otf','.woff','.woff2'))]
+              media=[n for n in names if n.lower().endswith(('.mp3','.wav','.ogg','.aac','.flac','.m4a'))]
+              assert not fonts and not media, 'unexpected bundled fonts/audio'
+              resource_images=[e for e in entries if e['path'].startswith('res/') and e['path'].lower().endswith(('.png','.webp','.jpg','.jpeg'))]
+              expected_webp=pathlib.Path('android/app/src/main/res/drawable-nodpi/ic_launcher_foreground.webp').read_bytes()
+              assert sha(expected_webp)=='3467962178347f9043a5c1983485f4962f041aa49962cf0970ee14767491d1f7'
+              assert any(e['sha256']==sha(expected_webp) for e in resource_images), 'original foreground absent from packaged resources'
+              report={'scope':'locked unsigned historical beta, not signed release','apk_sha256':sha(pathlib.Path(os.environ['APK']).read_bytes()),'exact_artwork_count':len(artwork),'source_concept_exclusion':True,'font_files':fonts,'audio_files':media,'packaged_images':resource_images,'entries':entries}
+              (out/'apk-artwork-inventory.json').write_text(json.dumps(report,indent=2)+'\n')
+              print('SR_HUB_10B_PASS',json.dumps({k:v for k,v in report.items() if k not in ('entries','packaged_images')}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-10B-artwork-inventory
+          path: qa-results/sr-hub-10b/
+          if-no-files-found: error
+          retention-days: 14
