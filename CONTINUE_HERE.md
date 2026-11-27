@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-10:** [Artwork provenance checkpoint](https://github.com/EdenP-Development/Ricochet-Rumble/blob/3c830b638789c77824d9f7e45074dbd68711db97/docs/SR_HUB_10_ARTWORK_PROVENANCE_2026-11-27.md), draft #176. Version A launcher master/432px owner image pack not recovered; preserve current exact approved art. Colord provenance run 45957668446 PASS evidence capture only; gitHead 5344fbf77b736f81cd33c21050021bc09bc9dd1d exact LICENSE lookup 404, notice unresolved. Next recover original master and actual notice; no runtime/signing/merge/publication changes.
+
+
 > **2026-11-27 SR-HUB-09C–E:** [Draft #175](https://github.com/EdenP-Development/Ricochet-Rumble/pull/175), committed npm lock SHA256 2d4c751a4784de7241b3502c73b07b9ff62fa29319b87046ea9a11838286a2a8; locked Android staging [45957235951](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45957235951) PASS; notice audit [45957236015](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45957236015) PASS, [artifact 15178738652](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45957236015/artifacts/15178738652). Six bundled JS packages; five notice files captured, @pixi/colord missing exact notice. Both betaStaging compile/runtime classpaths report No dependencies; build tooling graph separate. Upstream provenance workflow committed 0d2190d0f0c02e21ff7de06c284daa3fd16f6894, result pending. Full APK reproducibility and rights clearance not established. Hub registry synchronized; no runtime/signing/merge/publication changes.
 
 
