@@ -1,0 +1,85 @@
+name: SR-HUB-06C real WebView upgrade rehearsal
+on:
+  push:
+    branches: [qa/sr-hub-06-upgrade-rehearsal-2026-11-27]
+permissions:
+  contents: read
+jobs:
+  rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build two instrumented disposable versions
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          npm --prefix hybrid-ui install --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          git worktree add --detach "$RUNNER_TEMP/old" HEAD
+          node qa/sr-hub-06-webview-upgrade-probe.mjs patch "$RUNNER_TEMP/old" .
+          cp web/hybrid-menu-pixi.bundle.js "$RUNNER_TEMP/old/web/"
+          cp android/app/src/main/assets/hybrid-menu-pixi.bundle.js "$RUNNER_TEMP/old/android/app/src/main/assets/"
+          keytool -genkeypair -alias fixture -keyalg RSA -keysize 2048 -validity 30 -dname 'CN=Disposable Upgrade Fixture' -storetype PKCS12 -keystore "$RUNNER_TEMP/fixture.p12" -storepass fixture-only -keypass fixture-only
+          keytool -exportcert -alias fixture -keystore "$RUNNER_TEMP/fixture.p12" -storepass fixture-only -file "$RUNNER_TEMP/fixture.der"
+          echo "SR_FIXTURE_CERT_SHA256=$(sha256sum "$RUNNER_TEMP/fixture.der" | cut -d ' ' -f1)" >> "$GITHUB_ENV"
+          mkdir -p qa-results/sr-hub-06-upgrade
+          for version in 1 2; do
+            root=.
+            name=current
+            if [[ "$version" == 1 ]]; then root="$RUNNER_TEMP/old"; name=baseline; fi
+            # Temporary fixture configuration only. Never use real beta identity or credentials.
+            python3 - "$root/android/app/build.gradle" "$version" <<'PY'
+          import sys,pathlib
+          p=pathlib.Path(sys.argv[1]);s=p.read_text()
+          old="applicationId 'com.playereden.ricochetrumble'"
+          if s.count(old)!=1: raise ValueError("application ID anchor")
+          s=s.replace(old,"applicationId 'com.playereden.ricochetrumble.upgradeqa'")
+          s=s.replace("def defaultPreviewVersionCode = 50","def defaultPreviewVersionCode = "+sys.argv[2])
+          p.write_text(s)
+          PY
+            (cd "$root/android" && SR_TEST_STORE_FILE="$RUNNER_TEMP/fixture.p12" SR_TEST_STORE_PASSWORD=fixture-only SR_TEST_KEY_ALIAS=fixture SR_TEST_KEY_PASSWORD=fixture-only gradle --no-daemon :app:assembleDebug)
+            cp "$root/android/app/build/outputs/apk/debug/app-debug.apk" "qa-results/sr-hub-06-upgrade/$name-$version.apk"
+          done
+      - name: Enable hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Real emulator install-over and WebView persistence
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          script: bash tools/sr-hub-06-emulator-upgrade.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SR-HUB-06C-EMULATOR-EVIDENCE
+          path: |
+            qa-results/sr-hub-06-upgrade/*.json
+            qa-results/sr-hub-06-upgrade/*.txt
+            qa-results/sr-hub-06-upgrade/*.png
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Remove disposable key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/fixture.p12" "$RUNNER_TEMP/fixture.der"
