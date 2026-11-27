@@ -1,0 +1,17 @@
+name: SR-HUB-12D archive contract
+on:
+  push:
+    branches: [docs/sr-hub-12d-archive-2026-11-27]
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - run: node tests/sr-hub-12d-archive-check.mjs
