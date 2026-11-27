@@ -16,7 +16,7 @@ private="$(mktemp -d)"
 trap 'rm -rf "$private"' EXIT
 "$sdk/aapt" dump badging "$apk" > "$private/badging"
 grep -F "name='com.playereden.ricochetrumble.beta' versionCode='${SR_VERSION_CODE}' versionName='${SR_VERSION_NAME}'" "$private/badging"
-! grep -q application-debuggable "$private/badging"
+if grep -q application-debuggable "$private/badging"; then echo "Refusing debuggable APK"; exit 1; fi
 if "$sdk/apksigner" verify "$apk" > /dev/null 2>&1; then echo 'Refusing already signed input'; exit 1; fi
 printf '%s' "$SECTOR_REBOUND_BETA_KEYSTORE_BASE64" | base64 --decode > "$private/key.p12"
 keytool -exportcert -storetype PKCS12 -keystore "$private/key.p12" -storepass:env SECTOR_REBOUND_BETA_KEYSTORE_PASSWORD -alias "$SECTOR_REBOUND_BETA_KEY_ALIAS" > "$private/cert.der" 2>"$private/keytool.log"
