@@ -1,0 +1,49 @@
+name: SR-HUB-09 dependency resolution and license inventory
+on:
+  push:
+    branches: [build/sr-hub-09-dependency-audit-2026-11-27]
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Resolve actual registry dependencies
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          mkdir -p qa-results/sr-hub-09
+          node --version > qa-results/sr-hub-09/toolchain.txt
+          npm --version >> qa-results/sr-hub-09/toolchain.txt
+          npm --prefix hybrid-ui install --package-lock-only --ignore-scripts --no-audit --no-fund
+          cp hybrid-ui/package-lock.json qa-results/sr-hub-09/package-lock.json
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui ls --all --json > qa-results/sr-hub-09/resolved-tree.json
+          node tools/sr-hub-09-dependency-inventory.mjs
+      - name: Repeat clean build using identical lock
+        run: |
+          set -euo pipefail
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          sha256sum web/hybrid-menu-pixi.bundle.js > qa-results/sr-hub-09/bundle.sha256
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          sha256sum -c qa-results/sr-hub-09/bundle.sha256
+          cmp hybrid-ui/package-lock.json qa-results/sr-hub-09/package-lock.json
+          node tools/verify-hybrid-menu-bundle.mjs
+          node tests/smoke.mjs
+          node tests/save-backup.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-09-dependency-evidence
+          path: qa-results/sr-hub-09/
+          if-no-files-found: error
+          retention-days: 14
