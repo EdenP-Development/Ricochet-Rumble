@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-11B.1:** Runtime run 45961090965 FAILED backup text assertion after successful build/install/connected WebView navigation; offline/reconnect not reached. Source makeBackup intentionally refuses empty storage; original error message not captured, so cause not proven. Corrected probe 5a346ec8e218c2c9c8e70a908ca72ac7b1c458d9 creates actual Moss paint selection via Hangar UI, checks persisted value and validates exported exact record using SectorBackup.checkedEntries, captures bounded diagnostic without payload. Runs: 45961700657 in_progress pending; 45961700743 in_progress pending. No runtime changes; native network and physical acceptance remain pending.
+
+
 > **2026-11-27 SR-HUB-11A/B:** [Packaged manifest run 45960033832](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45960033832) PASS: three expected permissions only, allowBackup=false, usesCleartextTraffic=false, one activity, zero provider/service/receiver. SR-HUB-11B actual emulator harness committed 17bd75e72df1c326be94d4e50045d7db8163c3d5 on draft #177; locked JS, isolated .privacyqa debug package, connected/offline/reconnected CDP reload/navigation/backup generation/Practice launch checks, no backup payload archived. Observed runs: 45961090965 in_progress pending; 45961090948 in_progress pending. CDP is not native socket capture or complete combat verification; native startup before observation, physical LAN, approved privacy/contact/audience, artwork master and Colord notice pending. No runtime/signing/merge/publication changes.
 
 
