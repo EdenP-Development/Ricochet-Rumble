@@ -1,0 +1,38 @@
+name: SR-HUB-02 pinned toolkit consumer pilot
+on:
+  push:
+    branches: [audit/sr-hub-02-verification-2026-11-27]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-historical-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: EdenP-Development/Eden-Development-Standards
+          ref: b4d7d05bb9e8ada15fb053a584409e7532e9444c
+          path: .hub-pinned
+          persist-credentials: false
+      - name: Download exact historical review artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15010503734/zip > "$RUNNER_TEMP/r10.zip"
+          echo 'cc69148dd87fcc8bbbff4dc86ff8dbb3c5ec2fd97910713d96ee39a8aa501f61  '"$RUNNER_TEMP/r10.zip" | sha256sum -c -
+      - name: Verify frozen source and actual packaged bytes
+        run: python3 tools/sr-hub-02-verify.py "$RUNNER_TEMP/r10.zip" .hub-pinned qa-results/sr-hub-02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-02-verification-receipts
+          path: qa-results/sr-hub-02/*.json
+          if-no-files-found: error
+          retention-days: 14
