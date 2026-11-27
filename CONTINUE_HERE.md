@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-13F:** Eight exact promotional PNGs recovered, hashed, and ZIP member hashes verified. Artwork register 18a6fdf9f077c476c10fddc7e72b586126cb70b3 on draft #181. Reference pack SHA256 47dcb7c681464da5e3368ff0ad72219eb2f2a52932f51c8d84898b6277a69184. Cover direction approved, tank favorable feedback, arena/mech/pilot concepts not final approvals. Actual binaries available in chat archive, not committed to GitHub; durable external copy unverified. No new gameplay, brand marks, signing, merges or publication. Next promotional derivatives and binary preservation.
+
+
 > **2026-11-27 SR-HUB-13E:** Owner approved Digital Combat Grid Concept B direction, rejected realistic battlefield style. Style standard 4521459 on draft #181; exact local master 1408x1117 SHA256 f0680fe77a5da3ec89cc19c724c2d02d771a2887fe2c0eb1047ffc873d88c5f5, 630x500 derivative SHA256 32abd8f78c51882fa965fb370d46094e84fa76527bcacbcfd0ec9485a4e5798c. Binary files local only, GitHub binary ingestion and durable owner archive pending. No runtime art change, release approval or publication. Next reusable visual reference and derivative composition, exact asset preservation.
 
 
