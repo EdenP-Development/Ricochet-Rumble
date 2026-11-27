@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-11B.2:** Corrected run 45961700743 FAILED CDP Runtime.evaluate timeout (12s), after isolated APK build and emulator install; no completed stage evidence. Prior backup correction not established. Probe a70152d45b6445ef71e144471f2ab24e8f58e6ad increases bounded command timeout to 45s, enables Page domain, asserts reload readiness and logs per-action checkpoints; assertions retained. Runs: 45962268839 in_progress pending; 45962268829 in_progress pending. No production changes or native network assurance.
+
+
 > **2026-11-27 SR-HUB-11B.1:** Runtime run 45961090965 FAILED backup text assertion after successful build/install/connected WebView navigation; offline/reconnect not reached. Source makeBackup intentionally refuses empty storage; original error message not captured, so cause not proven. Corrected probe 5a346ec8e218c2c9c8e70a908ca72ac7b1c458d9 creates actual Moss paint selection via Hangar UI, checks persisted value and validates exported exact record using SectorBackup.checkedEntries, captures bounded diagnostic without payload. Runs: 45961700657 in_progress pending; 45961700743 in_progress pending. No runtime changes; native network and physical acceptance remain pending.
 
 
