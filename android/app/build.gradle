@@ -58,6 +58,24 @@ if (requestedPreviewCode != null) {
     previewVersionCode = requestedNumber.intValue()
     previewVersionName = requestedPreviewName
 }
+// SR-HUB-05: explicit unsigned beta staging only; private signing is a later trusted lane.
+def betaStaging = providers.gradleProperty('srBetaStaging').orNull
+def betaCode = providers.gradleProperty('srBetaVersionCode').orNull
+def betaName = providers.gradleProperty('srBetaVersionName').orNull
+if (betaStaging != null && betaStaging != 'true')
+    throw new GradleException('srBetaStaging must be true if supplied')
+if (betaStaging == 'true') {
+    if (previewPackageSwitch != null || hybridLabPackage != null || spudacusStartupQA != null || requestedPreviewCode != null || requestedPreviewName != null)
+        throw new GradleException('Beta staging cannot mix existing preview identities')
+    if (hasUploadSigning || hasTestSigning)
+        throw new GradleException('Beta staging refuses existing signing credentials')
+    if (betaCode == null || !(betaCode ==~ /[1-9][0-9]{0,9}/) || betaCode.toLong() > 2100000000L)
+        throw new GradleException('Beta staging requires valid explicit versionCode')
+    if (betaName == null || !(betaName ==~ /[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+/))
+        throw new GradleException('Beta staging requires explicit beta versionName')
+} else if (betaCode != null || betaName != null) {
+    throw new GradleException('Beta versions require srBetaStaging=true')
+}
 android {
     namespace 'com.playereden.ricochetrumble'
     compileSdk 36
@@ -65,8 +83,8 @@ android {
         applicationId 'com.playereden.ricochetrumble'
         minSdk 26
         targetSdk 36
-        versionCode previewVersionCode
-        versionName previewVersionName
+        versionCode (betaStaging == 'true' ? betaCode.toInteger() : previewVersionCode)
+        versionName (betaStaging == 'true' ? betaName : previewVersionName)
     }
     signingConfigs {
         if (hasUploadSigning) {
@@ -98,6 +116,19 @@ android {
         release {
             minifyEnabled false
             if (hasUploadSigning) signingConfig signingConfigs.releaseUpload
+        }
+    }
+    if (betaStaging == 'true') {
+        buildTypes {
+            create('betaStaging') {
+                applicationIdSuffix '.beta'
+                debuggable false
+                minifyEnabled false
+                signingConfig null
+            }
+        }
+        variantFilter { variant ->
+            if (variant.buildType.name != 'betaStaging') variant.ignore = true
         }
     }
     compileOptions {
