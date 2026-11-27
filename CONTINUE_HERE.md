@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-11B.4:** Independent core run 45962857576 FAILED during Gradle dependency resolution: Maven Central HTTP 429; emulator not reached. Historical manifest workflow scoped to relevant changes (311d139); core workflow 57190d3d04ec2b313c64bf6f5303c322b2b4eced serializes executions, retries only explicit Maven 429 up to three attempts with bounded backoff, retains all assertions. Runs: 45963585419 in_progress pending. Hangar CDP disconnect and runtime privacy remain unresolved. No production changes, signer access, merge or publication. Proceed with independent release-receipt preparation while retaining open gates.
+
+
 > **2026-11-27 SR-HUB-11B.3:** Diagnostic run 45962268829 FAILED connected equip-paint: CDP connection closed after successful reload/readiness/Hangar click. Cause unproven. Separate core offline probe and workflow 66fcc447c83093fe08556f397e253535eb2e8d8d uses explicit synthetic valid Moss paint localStorage fixture, keeps exact export/online-offline/Practice/request assertions, archives bounded logcat; original UI probe retained and unresolved. Runs: 45962857576 in_progress pending; 45962857367 in_progress pending. Core result cannot establish cosmetic UI acceptance or native socket isolation. No runtime changes, signing, merge or publication.
 
 
