@@ -1,0 +1,3 @@
+# SR-HUB-09 — dependency audit
+
+Pinned R10 runtime; actual registry resolution via CI, local registry DNS unavailable. Inventory workflow produces candidate npm lockfile v3, installed dependency graph, package license metadata and actual notice file texts/hashes, and two clean npm ci bundle hash comparisons. No lockfile committed until generated evidence is retrieved and reviewed. Installed graph is not actual bundled-module membership; next use esbuild metafile to identify distributed modules and review required notices, platform optional packages and Gradle resolved artifacts. No legal clearance or claim of full APK reproducibility; exact Node 22.16.0 only in pilot. No runtime, signing or publication changes. CI pending.
