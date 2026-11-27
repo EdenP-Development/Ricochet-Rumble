@@ -1,0 +1,59 @@
+name: SR-HUB-09E upstream notice provenance
+on:
+  push:
+    branches: [build/sr-hub-09-dependency-audit-2026-11-27]
+    paths: ['.github/workflows/sr-hub-09e-upstream-notice.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Recover original notice evidence and investigate exact upstream provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          out=qa-results/sr-hub-09e
+          mkdir -p "$out"
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15178738652/zip > "$RUNNER_TEMP/notices.zip"
+          echo '9db739badfd85927f4bb7530d64de7b21cd0d4cad8b129b55b803685e5be0f13  '"$RUNNER_TEMP/notices.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/notices.zip" THIRD_PARTY_NOTICES_DRAFT.txt > "$out/THIRD_PARTY_NOTICES_DRAFT.txt"
+          unzip -p "$RUNNER_TEMP/notices.zip" notices-register.json > "$out/notices-register.json"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm view @pixi/colord@2.9.6 --json > "$out/colord-registry.json"
+          node -e 'const p=require("./hybrid-ui/node_modules/@pixi/colord/package.json");console.log(JSON.stringify({name:p.name,version:p.version,license:p.license,repository:p.repository,author:p.author}));'
+          # Capture evidence, not assume the upstream original is identical to the fork.
+          for repo in omgovich/colord pixijs/colord; do
+            name="${repo//\//-}"
+            if gh api "repos/$repo" > "$out/$name-repository.json"; then
+              gh api "repos/$repo/tags?per_page=100" > "$out/$name-tags.json"
+              for ref in v2.9.6 2.9.6; do
+                if gh api "repos/$repo/commits/$ref" > "$RUNNER_TEMP/commit.json" 2>/dev/null; then
+                  sha="$(jq -er .sha "$RUNNER_TEMP/commit.json")"
+                  if gh api "repos/$repo/contents/LICENSE?ref=$sha" > "$RUNNER_TEMP/license.json" 2>/dev/null; then
+                    jq -er .content "$RUNNER_TEMP/license.json" | base64 --decode > "$out/$name-$sha-LICENSE.txt"
+                    printf '%s %s %s\n' "$repo" "$ref" "$sha" >> "$out/upstream-references.txt"
+                  fi
+                fi
+              done
+            fi
+          done
+          echo 'REGISTRY_PROVENANCE'
+          jq '{name,version,gitHead,repository,license,dist:{integrity:.dist.integrity}}' "$out/colord-registry.json"
+          if [[ -f "$out/upstream-references.txt" ]]; then cat "$out/upstream-references.txt"; fi
+          echo 'Upstream provenance evidence only: fork equivalence and required notice review still pending.'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-09E-upstream-notice-evidence
+          path: qa-results/sr-hub-09e/
+          if-no-files-found: error
+          retention-days: 14
