@@ -3,12 +3,15 @@ on:
   push:
     branches: [audit/sr-hub-11-privacy-network-2026-11-27]
     paths: ['.github/workflows/sr-hub-11b-core-offline.yml','qa/sr-hub-11b-core-offline.mjs','tools/sr-hub-11b-core-offline.sh']
+concurrency:
+  group: sr-hub-11b-core-offline
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
   offline:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,7 +47,15 @@ jobs:
           assert s.count(anchor)==1
           p.write_text(s.replace(anchor,"applicationId 'com.playereden.ricochetrumble.privacyqa'"))
           PY
-          (cd android && gradle --no-daemon :app:assembleDebug)
+          # Only retry explicit repository throttling, never application/compiler failures.
+          for attempt in 1 2 3; do
+            if (cd android && gradle --no-daemon :app:assembleDebug) > "$RUNNER_TEMP/gradle-$attempt.log" 2>&1; then
+              cat "$RUNNER_TEMP/gradle-$attempt.log"; break
+            fi
+            cat "$RUNNER_TEMP/gradle-$attempt.log"
+            if [[ "$attempt" == 3 ]] || ! grep -q 'Received status code 429' "$RUNNER_TEMP/gradle-$attempt.log"; then exit 1; fi
+            sleep "$((attempt * 60))"
+          done
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android/app/build/outputs/apk/debug/app-debug.apk > "$RUNNER_TEMP/badging"
           grep -F "name='com.playereden.ricochetrumble.privacyqa'" "$RUNNER_TEMP/badging"
       - name: Enable KVM
