@@ -1,0 +1,57 @@
+name: SR-HUB-09D notices and Android dependency inventory
+on:
+  push:
+    branches: [build/sr-hub-09-dependency-audit-2026-11-27]
+    paths: ['.github/workflows/sr-hub-09d-notices.yml','tools/sr-hub-09d-notices.mjs']
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Collect actual bundle notices
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          mkdir -p qa-results/sr-hub-09d
+          echo '2d4c751a4784de7241b3502c73b07b9ff62fa29319b87046ea9a11838286a2a8  hybrid-ui/package-lock.json' | sha256sum -c -
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          (cd hybrid-ui && node_modules/.bin/esbuild src/menu.js --bundle --minify --format=iife --target=es2020 --outfile=../web/hybrid-menu-pixi.bundle.js --metafile=../qa-results/sr-hub-09d/metafile.json)
+          echo 'c090b88d142627695b1c450db0df6945a2744d9e6a7f2455ea785204f7867740  web/hybrid-menu-pixi.bundle.js' | sha256sum -c -
+          node tools/sr-hub-09d-notices.mjs
+      - name: Resolve Android build and app classpaths
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          out="$PWD/qa-results/sr-hub-09d"
+          cd android
+          gradle --version > "$out/gradle-version.txt"
+          args=(-PsrBetaStaging=true -PsrBetaVersionCode=1 -PsrBetaVersionName=0.9.80-beta.1)
+          gradle --no-daemon --console=plain buildEnvironment :app:buildEnvironment "${args[@]}" > "$out/android-build-environment.txt"
+          gradle --no-daemon --console=plain :app:dependencies --configuration betaStagingRuntimeClasspath "${args[@]}" > "$out/android-runtime-classpath.txt"
+          gradle --no-daemon --console=plain :app:dependencies --configuration betaStagingCompileClasspath "${args[@]}" > "$out/android-compile-classpath.txt"
+          if grep -E 'FAILED|\(n\)' "$out"/android-*.txt; then echo 'Unresolved dependency report'; exit 1; fi
+          cat "$out/android-runtime-classpath.txt"
+          cat "$out/android-compile-classpath.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-09D-notices-and-android-dependencies
+          path: qa-results/sr-hub-09d/
+          if-no-files-found: error
+          retention-days: 14
