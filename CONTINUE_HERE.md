@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-13:** Archive contract 45967880564 PASS six synthetic cases; durable copies unconfirmed. Draft #181 storefront plan 1c3384d098b015bea87255b748ecf329455debf6 and original R10 screenshot recovery workflow c59d095; actual browser PNGs only, no owner visual acceptance or final signed Android screenshots. Recovery runs [{"id":45968598825,"status":"completed","conclusion":"success"}]. No new artwork, publication, signing, or merges. Offline run 45963585419 last observed in progress; version pair Maven blocked, original master/Colord/native LAN/privacy gates remain.
+
+
 > **2026-11-27 SR-HUB-12D:** Draft #180 head caed83c955dd417eba8d22d796693a87e8d03ecf preserves nine live artifact metadata records, owner-controlled archive procedure and local ZIP size/hash validator (six synthetic cases, CI []). R10 archive expires Dec 9 10:11:43 UTC; other eight Dec 11. Durable copies unconfirmed, no bytes transferred. Version pair run 45966120114 14 synthetic cases PASS, actual Gradle APK pair blocked Maven 429. Offline run 45963585419 last observed in progress. No signing, merge, publication.
 
 
