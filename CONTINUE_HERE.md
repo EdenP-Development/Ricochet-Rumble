@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-06:** SR-HUB-05 exact source d724426 passed [45950890516](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45950890516); unsigned staging artifact 15176830805, not installable. [Draft #172](https://github.com/EdenP-Development/Ricochet-Rumble/pull/172) head `c33587b152cd7969145c1b163b4c14a0eca1af3e` adds trusted manual main-only signing, exact input receipt, owner recovery/approval and original certificate checks. Corrected bash negation errexit bug: debuggable APK explicitly rejected. Disposable SDK fixture exercises 12 positive/negative cases using synthetic APKs and temporary test key only; actual results pending ([run](https://github.com/EdenP-Development/Ricochet-Rumble/actions/runs/45951957698)). No actual private signing, owner recovery attestation, merge or publication. Next verify fixture results, prepare actual upgrade rehearsal and support/privacy/rights gates. Hub registry synchronized.
+
+
 > **2026-11-27 SR-HUB-05 staging:** [Draft #171](https://github.com/EdenP-Development/Ricochet-Rumble/pull/171), head `d72442684bc73ead75ce5a9bf800e795509522c9`, adds opt-in unsigned non-debug `.beta` build lane; proposed versionCode 1, versionName 0.9.80-beta.1 (no prior public beta established). Runtime pinned to R10. Dedicated workflow committed, actual execution pending verification; no secret use, signing, merge or publication. Existing package identities and saves preserved in source; verify compiled lane isolation and actual APK before further promotion. Next check CI and design trusted signing lane, with independent owner recovery and release gates still open.
 
 
