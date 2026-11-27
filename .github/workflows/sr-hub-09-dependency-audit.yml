@@ -23,7 +23,7 @@ jobs:
           mkdir -p qa-results/sr-hub-09
           node --version > qa-results/sr-hub-09/toolchain.txt
           npm --version >> qa-results/sr-hub-09/toolchain.txt
-          npm --prefix hybrid-ui install --package-lock-only --ignore-scripts --no-audit --no-fund
+          echo '2d4c751a4784de7241b3502c73b07b9ff62fa29319b87046ea9a11838286a2a8  hybrid-ui/package-lock.json' | sha256sum -c -
           cp hybrid-ui/package-lock.json qa-results/sr-hub-09/package-lock.json
           npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
           npm --prefix hybrid-ui ls --all --json > qa-results/sr-hub-09/resolved-tree.json
@@ -33,6 +33,7 @@ jobs:
           set -euo pipefail
           npm --prefix hybrid-ui run build
           node tools/verify-hybrid-menu-bundle.mjs
+          echo 'c090b88d142627695b1c450db0df6945a2744d9e6a7f2455ea785204f7867740  web/hybrid-menu-pixi.bundle.js' | sha256sum -c -
           sha256sum web/hybrid-menu-pixi.bundle.js > qa-results/sr-hub-09/bundle.sha256
           npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
           npm --prefix hybrid-ui run build
