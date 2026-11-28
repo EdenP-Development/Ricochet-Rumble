@@ -37,6 +37,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      - name: Refuse signed artifact creation in public repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY" --jq '.private and .visibility == "private"' | grep -Fx true
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -72,6 +78,7 @@ jobs:
           SR_OWNER_APPROVED: ${{ inputs.owner_approved }}
           SR_RECOVERY_CONFIRMED: ${{ inputs.recovery_confirmed }}
           SR_EXPECTED_UNSIGNED_SHA: ${{ inputs.unsigned_sha256 }}
+          SR_PREVIOUS_VERSION_CODE: '0'
           SR_VERSION_CODE: '1'
           SR_VERSION_NAME: '0.9.80-beta.1'
           SECTOR_REBOUND_BETA_KEYSTORE_BASE64: ${{ secrets.SECTOR_REBOUND_BETA_KEYSTORE_BASE64 }}
