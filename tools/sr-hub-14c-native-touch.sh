@@ -32,7 +32,7 @@ root=ET.parse(sys.argv[1])
 matches=[]
 for n in root.iter('node'):
     if n.get('enabled')!='true': continue
-    if re.search(sys.argv[2], ' '.join(n.get(k,'') for k in ('text','content-desc')),re.I):
+    if re.search(sys.argv[2], ' '.join(n.get(k,'') for k in ('text','content-desc')).strip(),re.I):
         b=list(map(int,re.findall(r'\d+',n.get('bounds',''))))
         if len(b)==4 and b[2]>b[0] and b[3]>b[1]: matches.append(((b[2]-b[0])*(b[3]-b[1]),(b[0]+b[2])//2,(b[1]+b[3])//2))
 assert matches, 'no accessible control: '+sys.argv[2]
