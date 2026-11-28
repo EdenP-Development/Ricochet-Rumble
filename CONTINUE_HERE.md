@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-17B:** Review 17A run 46107618938 PASS regressions and disposable APK packaging. Artifact 15248286914 independently verified downloaded ZIP SHA256 70c603e9110c7ccf4bb09a90d4fd251be66b27920ec2da7c2fabea81d46d1c0c; extracted APK 1170201 bytes SHA256 911cfdc6143b4d8443448f41e3d6bfe330d94f1c646fe6eda806dc3f0502750b matches CI receipt; notice hash matched. CI signature verified, local signature not independently verified. Isolated .review17qa v50, disposable debug, no update promise. Checklist 3aa273c1d4f8b3666bde86e9328c75ae8190c9cd physical 0/20. Owner can install alongside prior R10; next collect actual gameplay feedback. No merge/publication/real signing.
+
+
 > **2026-11-27 SR-HUB-17A:** Archive inventory expanded to 17 metadata records (44,771,176 bytes), commit c258e09c0ee9f9826002c3241fd14904d7b4b7d4; durable custody unconfirmed. Draft #189 c2447b5d0c98ab717acda9dba2cbcbfdd653c934 builds isolated disposable .review17qa debug APK using temporary suffix patch, reviewed Help/license source, locked build, regression and packaged parity gates. Separate from R10 .spudacusqa and actual .beta; no update compatibility promised. Runs [{"id":46107618938,"name":"SR-HUB-17A consolidated disposable review","status":"in_progress","conclusion":null},{"id":46107617827,"name":".github/workflows/sr-hub-14c-native-touch.yml","status":"completed","conclusion":"failure"}]. No production signing key, no merge or publication; next verify artifact and prepare consolidated physical checklist.
 
 
