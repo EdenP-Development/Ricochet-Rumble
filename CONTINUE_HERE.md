@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-15B:** Notice assembly run 46101663532 PASS six packages, raw upstream equality; artifact 15245602463 ZIP SHA256 3621a6f1e5b84fad4f11d99e4e35ab86af88ac3e37f451f605d6e310a9d1d50f, document SHA256 b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d. Downloaded to chat; not independently locally inspected. Draft #185 workflow 50afe9e3c46263f643e8a871115dd235cdd70940 recovers exact notice bytes, copies into temporary web and Android assets, builds unsigned beta staging and checks APK notice byte parity, identity and nondebug/unsigned status. Runs [{"id":46102372978,"status":"completed","conclusion":"failure"},{"id":46102374252,"status":"in_progress","conclusion":null}]. This is a packaging rehearsal only; durable committed notice file, permanent build integration and player-facing access still pending. No production runtime changes, signing, merge or publication.
+
+
 > **2026-11-27 SR-HUB-15A:** Recovered matching LICENSE.md from omgovich/colord and pixijs/colord at exact registry gitHead 5344fbf77b736f81cd33c21050021bc09bc9dd1d. MIT, copyright 2020 Vlad Shilov. Preserved upstream text in draft #185 commit 2b83309383cf8441b424cb1765cf69c8b26821ea; CI ed74ec11422d8f397603ced4b91c6ce3b3e545e7 verifies raw upstream equality and assembles six locked bundled dependency notices; runs [{"id":46101663532,"status":"in_progress","conclusion":null},{"id":46101662430,"status":"completed","conclusion":"failure"}]. Notice delivery in exact APK, full rights and distribution clearance remain pending. Native diagnostic remains deferred/unverified. No dependency upgrades, production changes, signing, merges or publication.
 
 
