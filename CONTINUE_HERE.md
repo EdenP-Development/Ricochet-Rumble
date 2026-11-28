@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14A:** Authentic capture run 46095758401 PASS 10 ordinary-input browser captures, artifact 15243491739 ZIP SHA256 711c2d0d7304319ffa24ec007277fe2a72a97ddbd9aaa99ba942e57564562e58 expires Dec 12 01:59:19 UTC; downloaded to chat, local byte/visual review not yet established. Draft #183 b2677f459257a850165864afc1ed2246a32cd332 adds 19-item comprehensive R10 physical review matrix, zero physical results, existing exact QA APK only. Practice/Hangar CDP issues, offline/native LAN, real signed upgrade, rights/privacy and durable custody remain open. No signing, merge or publication. Next verify capture bytes and visual shortlist, then resolve technical blockers before consolidated physical review.
+
+
 > **2026-11-27 SR-HUB-13I:** Offline run 45963585419 cancelled; logs show connected synthetic backup validation advanced successfully, then Practice click Runtime.evaluate timeout; offline/reconnect not reached, cause unproven. Draft #182 head 947a4fbc58c9f005dcbf810e16c1bc0aff293c40 adds unmodified R10 browser capture using actual menu/keyboard actions, two landscape viewports, no injected state, no Android rebuild. CI [{"id":46095758401,"status":"in_progress","conclusion":null}]. Captures require visual review, no physical Android claims. No runtime changes, signing, merge or publication. Next verify capture and prepare consolidated owner test.
 
 
