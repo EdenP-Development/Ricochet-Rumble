@@ -51,6 +51,9 @@ jobs:
           console.log('SR_HUB_15A_NOTICE_ASSEMBLY_PASS '+entries.length);
           JS
           sha256sum "$out/THIRD_PARTY_NOTICES.txt"
+          echo NOTICE_TEXT_BASE64_BEGIN
+          base64 -w 0 "$out/THIRD_PARTY_NOTICES.txt"; echo
+          echo NOTICE_TEXT_BASE64_END
       - uses: actions/upload-artifact@v4
         with:
           name: SR-HUB-15A-notices-review
