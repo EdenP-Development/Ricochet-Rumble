@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-13H:** Revised banner favorable owner feedback; existing approved cover retained. Three Lanczos fit promotional derivatives, five PNG export ZIP and manifest locally verified. Register cbdeec2b334320f3e90cf3003196f99ede69609a on draft #181. ZIP SHA256 f449c247c32e0fc2ca5ac7f73572d5c62faac043e6d218c3b922701681cf85ab. Withheld original feature-claim banner excluded. Actual binaries not committed, independent durable archive unconfirmed. Next authentic gameplay capture and consolidated owner test; technical gates remain. No runtime, signing, merge or publication changes.
+
+
 > **2026-11-27 SR-HUB-13F:** Eight exact promotional PNGs recovered, hashed, and ZIP member hashes verified. Artwork register 18a6fdf9f077c476c10fddc7e72b586126cb70b3 on draft #181. Reference pack SHA256 47dcb7c681464da5e3368ff0ad72219eb2f2a52932f51c8d84898b6277a69184. Cover direction approved, tank favorable feedback, arena/mech/pilot concepts not final approvals. Actual binaries available in chat archive, not committed to GitHub; durable external copy unverified. No new gameplay, brand marks, signing, merges or publication. Next promotional derivatives and binary preservation.
 
 
