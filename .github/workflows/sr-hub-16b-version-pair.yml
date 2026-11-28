@@ -1,0 +1,82 @@
+name: SR-HUB-16B unsigned beta version pair
+on:
+  push:
+    branches: [build/sr-hub-16b-version-pair-2026-11-27]
+    paths: ['.github/workflows/sr-hub-16b-version-pair.yml','tools/sr-hub-12c-version-pair.mjs','tests/sr-hub-12c-version-pair.mjs']
+permissions:
+  contents: read
+jobs:
+  version-pair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - run: node tests/sr-hub-12c-version-pair.mjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Build two unsigned nondebug beta versions
+        run: |
+          set -euo pipefail
+          # The only reviewed runtime source change since R10 is the Help HTML.
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main ':!web/index.html' ':!android/app/src/main/assets/index.html'
+          git diff --exit-code 986574019c17da544ef659bb3133da9aa77d4afc HEAD -- web android/app/src/main
+          cmp web/index.html android/app/src/main/assets/index.html
+          node tools/sr-hub-12c-version-pair.mjs 1 0.9.80-beta.1 2 0.9.80-beta.2
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          cmp web/THIRD_PARTY_NOTICES.txt android/app/src/main/assets/THIRD_PARTY_NOTICES.txt
+          echo 'b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d  web/THIRD_PARTY_NOTICES.txt' | sha256sum -c -
+          mkdir -p qa-results/sr-hub-16b
+          for v in 1 2; do
+            for attempt in 1 2 3; do
+              if (cd android && gradle --no-daemon :app:assembleBetaStaging -PsrBetaStaging=true -PsrBetaVersionCode="$v" -PsrBetaVersionName="0.9.80-beta.$v") > "$RUNNER_TEMP/gradle-$v-$attempt.log" 2>&1; then
+                cat "$RUNNER_TEMP/gradle-$v-$attempt.log"; break
+              fi
+              cat "$RUNNER_TEMP/gradle-$v-$attempt.log"
+              if [[ "$attempt" == 3 ]] || ! grep -q 'Received status code 429' "$RUNNER_TEMP/gradle-$v-$attempt.log"; then exit 1; fi
+              sleep "$((attempt * 60))"
+            done
+            apk="$(find android/app/build/outputs/apk/betaStaging -name '*.apk' -type f)"
+            test -f "$apk"
+            cp "$apk" "$RUNNER_TEMP/unsigned-$v.apk"
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "qa-results/sr-hub-16b/version-$v.txt"
+            grep -F "name='com.playereden.ricochetrumble.beta' versionCode='$v' versionName='0.9.80-beta.$v'" "qa-results/sr-hub-16b/version-$v.txt"
+            if grep -F application-debuggable "qa-results/sr-hub-16b/version-$v.txt"; then exit 1; fi
+            if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk"; then exit 1; fi
+            node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+            unzip -p "$apk" assets/THIRD_PARTY_NOTICES.txt > "qa-results/sr-hub-16b/notices-$v.txt"
+            cmp web/THIRD_PARTY_NOTICES.txt "qa-results/sr-hub-16b/notices-$v.txt"
+            unzip -p "$apk" assets/index.html > "$RUNNER_TEMP/index-$v.html"
+            cmp web/index.html "$RUNNER_TEMP/index-$v.html"
+            sha256sum "$RUNNER_TEMP/unsigned-$v.apk" >> qa-results/sr-hub-16b/apk-sha256.txt
+          done
+          python3 - <<'PY'
+          import os,zipfile,hashlib
+          def members(v):
+              with zipfile.ZipFile(os.path.join(os.environ['RUNNER_TEMP'],f'unsigned-{v}.apk')) as z:
+                  names=z.namelist()
+                  assert len(names)==len(set(names))
+                  return {n:hashlib.sha256(z.read(n)).hexdigest() for n in names if n!='AndroidManifest.xml'}
+          assert members(1)==members(2), 'unexpected non-manifest payload change'
+          print('SR_HUB_16B_UNSIGNED_PAIR_PASS: identical non-manifest payload')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-16B-UNSIGNED-PAIR-EVIDENCE-ONLY
+          path: qa-results/sr-hub-16b/
+          if-no-files-found: error
+          retention-days: 14
