@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14D.2:** Exact APK native run 46097714792 failed before Hangar; original archive and APK hashes, install and MainActivity launch passed. Downloaded diagnostic artifact 15243299855 SHA256 b2e2fe5dbd4bc3a734a6b53a1c26fdc32bcfaa63a96299d75cd48161f33e2b1b independently verified locally. Screenshot and XML show Android first-use immersive overlay (`Viewing full screen`, `android:id/ok` Got it), not game Home. Harness now acknowledges exact system dialog and waits boundedly for Home; source 195b97c8928998161846b5db622f2fc6f14a5f7c, evidence doc db28742cb5ee9b43d5b3ed0263f19313e170e982, runs [{"id":46099776575,"status":"in_progress","conclusion":null}]. Prior CDP cause still unproven; no runtime changes, native acceptance, signing, merge or publication.
+
+
 > **2026-11-27 SR-HUB-14C:** Browser isolation 46097109357 PASS both 1280x720 and 915x412, Moss persisted after reload, Practice launched/canvas changed, six captures artifact 15243707250 ZIP SHA256 80fe455d1a554b9ae509b819f33b68119c95a38889ba88ff7b68533717780c25. Native diagnostic head edf334f212394f34e0520fb5446277b92ea2cc5f on draft #184 uses exact historical R10 APK from original archive, verifies both hashes, no rebuild or CDP, native accessibility-derived touch coordinates, bounded screen/XML/PID/logcat/activity evidence. Runs []. Accessibility tree availability not proven; missing nodes cannot establish app defect. No offline/native traffic/physical acceptance or signing claims. No runtime changes, merge or publication.
 
 
