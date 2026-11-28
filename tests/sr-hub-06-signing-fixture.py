@@ -30,7 +30,7 @@ with tempfile.TemporaryDirectory() as td:
         return apk
     apk=make()
     env={k:v for k,v in os.environ.items() if not k.startswith(("SECTOR_REBOUND_BETA_","SR_"))}
-    env.update(GITHUB_REPOSITORY="EdenP-Development/Ricochet-Rumble",GITHUB_REF="refs/heads/main",GITHUB_EVENT_NAME="workflow_dispatch",GITHUB_SHA="0"*40,SR_OWNER_APPROVED="true",SR_RECOVERY_CONFIRMED="true",SR_EXPECTED_UNSIGNED_SHA=sha(apk),SR_VERSION_CODE="1",SR_VERSION_NAME="0.9.80-beta.1",SECTOR_REBOUND_BETA_KEYSTORE_BASE64=base64.b64encode(key.read_bytes()).decode(),SECTOR_REBOUND_BETA_KEYSTORE_PASSWORD="fixture-only",SECTOR_REBOUND_BETA_KEY_ALIAS="fixture",SECTOR_REBOUND_BETA_KEY_PASSWORD="fixture-only")
+    env.update(GITHUB_REPOSITORY="EdenP-Development/Ricochet-Rumble",GITHUB_REF="refs/heads/main",GITHUB_EVENT_NAME="workflow_dispatch",GITHUB_SHA="0"*40,SR_OWNER_APPROVED="true",SR_RECOVERY_CONFIRMED="true",SR_EXPECTED_UNSIGNED_SHA=sha(apk),SR_PREVIOUS_VERSION_CODE="0",SR_VERSION_CODE="1",SR_VERSION_NAME="0.9.80-beta.1",SECTOR_REBOUND_BETA_KEYSTORE_BASE64=base64.b64encode(key.read_bytes()).decode(),SECTOR_REBOUND_BETA_KEYSTORE_PASSWORD="fixture-only",SECTOR_REBOUND_BETA_KEY_ALIAS="fixture",SECTOR_REBOUND_BETA_KEY_PASSWORD="fixture-only")
     def check(name,source=fixture,input_apk=apk,changes=None,ok=False,expected=None):
         e=dict(env);e["SR_EXPECTED_UNSIGNED_SHA"]=sha(input_apk);e.update(changes or {})
         out=d/name
@@ -54,4 +54,9 @@ with tempfile.TemporaryDirectory() as td:
     # Real production copy still pins original cert: use actual expected package but disposable key.
     check("production-cert-denied",source=prod,input_apk=make(package="com.playereden.ricochetrumble.beta"),expected="Certificate mismatch")
     check("missing-secret",changes={"SECTOR_REBOUND_BETA_KEY_ALIAS":""},expected="Missing required secret name")
-    print("SR_HUB_06_FIXTURE_PASS 12")
+    second=check("valid-second-fixture",input_apk=make(version=2),changes={"SR_PREVIOUS_VERSION_CODE":"1","SR_VERSION_CODE":"2","SR_VERSION_NAME":"0.9.80-beta.2"},ok=True)
+    check("version-reuse-denied",changes={"SR_PREVIOUS_VERSION_CODE":"1"},expected="Version must increment")
+    check("version-gap-denied",changes={"SR_PREVIOUS_VERSION_CODE":"0","SR_VERSION_CODE":"2","SR_VERSION_NAME":"0.9.80-beta.2"},expected="Version must increment")
+    check("version-name-denied",changes={"SR_VERSION_NAME":"0.9.80-beta.2"},expected="Version name mismatch")
+    check("noncanonical-denied",changes={"SR_VERSION_CODE":"01"},expected="Invalid version contract")
+    print("SR_HUB_16C_FIXTURE_PASS 17")

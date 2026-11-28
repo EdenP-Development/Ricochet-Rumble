@@ -4,6 +4,10 @@ set -euo pipefail
 umask 077
 [[ "${GITHUB_REPOSITORY:-}" == EdenP-Development/Ricochet-Rumble && "${GITHUB_REF:-}" == refs/heads/main && "${GITHUB_EVENT_NAME:-}" == workflow_dispatch ]] || { echo 'Trusted main manual dispatch required'; exit 1; }
 [[ "${SR_OWNER_APPROVED:-}" == true && "${SR_RECOVERY_CONFIRMED:-}" == true ]] || { echo 'Owner acceptance and recovery attestation required'; exit 1; }
+# Explicit canonical version contract; no implicit default or downgrade acceptance.
+[[ "${SR_VERSION_CODE:-}" =~ ^[1-9][0-9]{0,9}$ && "${SR_PREVIOUS_VERSION_CODE:-}" =~ ^(0|[1-9][0-9]{0,9})$ ]] || { echo 'Invalid version contract'; exit 1; }
+(( SR_VERSION_CODE <= 2100000000 && SR_VERSION_CODE == SR_PREVIOUS_VERSION_CODE + 1 )) || { echo 'Version must increment approved baseline'; exit 1; }
+[[ "${SR_VERSION_NAME:-}" == "0.9.80-beta.$SR_VERSION_CODE" ]] || { echo 'Version name mismatch'; exit 1; }
 expected_cert=43840f1525c03a5279fa4d76723b593779fad5837c655296f182cb642e4656c7
 apk="$1"; output="$2"
 [[ "${SR_EXPECTED_UNSIGNED_SHA:-}" =~ ^[0-9a-f]{64}$ ]]
@@ -41,4 +45,4 @@ PY
 mkdir -p "$output"
 cp "$private/signed.apk" "$output/Sector-Rebound-Beta-INTERNAL-REVIEW.apk"
 cp "$private/signed-badging" "$output/badging.txt"
-printf 'SOURCE_SHA=%s\nUNSIGNED_SHA256=%s\nCERTIFICATE_SHA256=%s\nAPK_SHA256=%s\nCHANNEL=private-beta-review\nPUBLICATION=NOT_AUTHORIZED\n' "$GITHUB_SHA" "$SR_EXPECTED_UNSIGNED_SHA" "$expected_cert" "$(sha256sum "$output/Sector-Rebound-Beta-INTERNAL-REVIEW.apk" | cut -d ' ' -f1)" > "$output/verification.txt"
+printf 'SOURCE_SHA=%s\nUNSIGNED_SHA256=%s\nCERTIFICATE_SHA256=%s\nAPK_SHA256=%s\nVERSION_CODE=%s\nVERSION_NAME=%s\nPREVIOUS_VERSION_CODE=%s\nCHANNEL=private-beta-review\nPUBLICATION=NOT_AUTHORIZED\n' "$GITHUB_SHA" "$SR_EXPECTED_UNSIGNED_SHA" "$expected_cert" "$(sha256sum "$output/Sector-Rebound-Beta-INTERNAL-REVIEW.apk" | cut -d ' ' -f1)" "$SR_VERSION_CODE" "$SR_VERSION_NAME" "$SR_PREVIOUS_VERSION_CODE" > "$output/verification.txt"

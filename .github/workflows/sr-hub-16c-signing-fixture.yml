@@ -1,0 +1,30 @@
+name: SR-HUB-16C disposable SDK signing safety
+on:
+  push:
+    branches: [build/sr-hub-16c-signing-version-contract-2026-11-27]
+permissions:
+  contents: read
+jobs:
+  fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install SDK tools
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+      - name: Verify unchanged runtime and signing gates
+        run: |
+          set -euo pipefail
+          git diff --exit-code 986574019c17da544ef659bb3133da9aa77d4afc HEAD -- web android/app/src/main
+          bash -n tools/sign-sector-rebound-beta-review.sh
+          python3 tests/sr-hub-06-signing-fixture.py
