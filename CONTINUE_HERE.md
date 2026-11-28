@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-17A:** Archive inventory expanded to 17 metadata records (44,771,176 bytes), commit c258e09c0ee9f9826002c3241fd14904d7b4b7d4; durable custody unconfirmed. Draft #189 c2447b5d0c98ab717acda9dba2cbcbfdd653c934 builds isolated disposable .review17qa debug APK using temporary suffix patch, reviewed Help/license source, locked build, regression and packaged parity gates. Separate from R10 .spudacusqa and actual .beta; no update compatibility promised. Runs [{"id":46107618938,"name":"SR-HUB-17A consolidated disposable review","status":"in_progress","conclusion":null},{"id":46107617827,"name":".github/workflows/sr-hub-14c-native-touch.yml","status":"completed","conclusion":"failure"}]. No production signing key, no merge or publication; next verify artifact and prepare consolidated physical checklist.
+
+
 > **2026-11-27 SR-HUB-16D:** Disposable signing fixture run 46107168942 PASS all 17 cases. Repository API confirms visibility public/private=false; signed review artifacts must not be uploaded here under a private claim. Draft #188 guard df97001d957e1ec8281ab1fa6145de9435eb72d8 rejects non-private repository before checkout/signing, supplies previous code 0 for original initial dispatch; review doc b4d83f8aff0c1a386e0a58c85b4c66d7158926e5. Guard not exercised against real signing. Future trusted staging/version dispatch and authenticated prior receipt still pending; separate restricted signing location requires owner decision and reviewed identity/secret scope. No repository visibility change, real key use, secret transfer, merge or publication. Continue independent archive/physical QA preparation.
 
 
