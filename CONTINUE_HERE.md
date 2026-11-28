@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-16B:** Draft #187 a418f76dfd769f39f7a96170f83724fa420d50fd retries real unsigned .beta versionCode 1/2, proposed names 0.9.80-beta.1/.2, same reviewed runtime with only license Help HTML change since R10, exact generated notices and HTML in both APKs, identical non-manifest ZIP payload check, bounded retries only on explicit Maven 429. Prior 45966120114 passed synthetic tests but failed Gradle build. New runs [{"id":46106408745,"name":"SR-HUB-16B unsigned beta version pair","status":"in_progress","conclusion":null},{"id":46106407417,"name":".github/workflows/sr-hub-14c-native-touch.yml","status":"completed","conclusion":"failure"}]. No signing, installable candidate, physical upgrade or owner authorization. Next verify actual pair then review signing version contract. No production gameplay, merge or publication changes.
+
+
 > **2026-11-27 SR-HUB-16A:** License Help CI 46103918935 PASS exact text/offline expansion at 1280x720 and 915x412, two captures, unsigned APK HTML/notice parity. Artifact 15245899054 SHA256 e64a659ba3f9fcbb98d179a21b0e479650d749d41a25b812cb4fce17d58f5db5; screenshots not visually inspected. Draft #186 adds source-backed itch Android Beta 1 privacy review draft 6b80865123405160f71e0b4d752e017aaed1eed8 and lightweight support plan 0dd6630c75e188062ce776f289de505dab4508a5. Publisher/contact/audience/host/effective date, exact signed inventory, runtime LAN/WAN, legal/platform review, rights and physical gates remain open. No policy published; no runtime, signing, merge or publication changes in 16A. Next version rehearsal and durable archive preparation.
 
 
