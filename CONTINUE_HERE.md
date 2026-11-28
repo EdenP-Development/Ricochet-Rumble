@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14E:** Corrected native run 46099776575 failed with shell unexpected EOF after exact APK integrity, install and launch passed. Cause verified in source: JS replacement-string dollar/apostrophe expansion duplicated tail and broke quoting. Corrected via explicit slicing f1523b37b85a2149092d3c5684da3a0447437c45; added bash -n preflight in 267089614069108b07804b4cbcdf1c56abe474c3. Artifact 15244273690 metadata SHA256 cb072633a575a069b77fe92d39e1711aff653d12b592e5644fdc324fc93e5e74, not independently downloaded. New runs [{"id":46100552081,"status":"in_progress","conclusion":null}]. Native interactions not reached; no game defect proven. No production changes, signing, merges or publication.
+
+
 > **2026-11-27 SR-HUB-14D.2:** Exact APK native run 46097714792 failed before Hangar; original archive and APK hashes, install and MainActivity launch passed. Downloaded diagnostic artifact 15243299855 SHA256 b2e2fe5dbd4bc3a734a6b53a1c26fdc32bcfaa63a96299d75cd48161f33e2b1b independently verified locally. Screenshot and XML show Android first-use immersive overlay (`Viewing full screen`, `android:id/ok` Got it), not game Home. Harness now acknowledges exact system dialog and waits boundedly for Home; source 195b97c8928998161846b5db622f2fc6f14a5f7c, evidence doc db28742cb5ee9b43d5b3ed0263f19313e170e982, runs [{"id":46099776575,"status":"in_progress","conclusion":null}]. Prior CDP cause still unproven; no runtime changes, native acceptance, signing, merge or publication.
 
 
