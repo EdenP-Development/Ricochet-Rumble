@@ -1,0 +1,61 @@
+name: SR-HUB-15A notice provenance and assembly
+on:
+  push:
+    branches: [build/sr-hub-15a-license-closure-2026-11-27]
+    paths: ['.github/workflows/sr-hub-15a-notices.yml','docs/third-party/**']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  notices:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Verify exact upstream and assemble notices
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          out=qa-results/sr-hub-15a
+          mkdir -p "$out"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm view @pixi/colord@2.9.6 --json > "$out/registry.json"
+          jq -e '.gitHead=="5344fbf77b736f81cd33c21050021bc09bc9dd1d" and .license=="MIT"' "$out/registry.json"
+          for repo in omgovich/colord pixijs/colord; do
+            gh api "repos/$repo/contents/LICENSE.md?ref=5344fbf77b736f81cd33c21050021bc09bc9dd1d" --jq .content | base64 -d > "$out/${repo//\//-}-LICENSE.md"
+            cmp "docs/third-party/pixi-colord-2.9.6-LICENSE.md" "$out/${repo//\//-}-LICENSE.md"
+          done
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import assert from 'node:assert/strict';
+          import crypto from 'node:crypto';
+          const expected={'@pixi/colord':'2.9.6','earcut':'3.2.4','eventemitter3':'5.0.4','ismobilejs':'1.1.1','parse-svg-path':'0.1.2','pixi.js':'8.18.0'};
+          const entries=[];
+          for(const [name,version] of Object.entries(expected)){
+            const dir=path.join('hybrid-ui/node_modules',name);
+            const p=JSON.parse(fs.readFileSync(path.join(dir,'package.json')));
+            assert.equal(p.version,version);
+            const file=name==='@pixi/colord'?'docs/third-party/pixi-colord-2.9.6-LICENSE.md':path.join(dir,fs.readdirSync(dir).find(n=>/^licen[cs]e(?:\.|$)/i.test(n))||'MISSING');
+            const bytes=fs.readFileSync(file);
+            entries.push({name,version,license:p.license,sha256:crypto.createHash('sha256').update(bytes).digest('hex'),text:bytes.toString('utf8')});
+          }
+          fs.writeFileSync('qa-results/sr-hub-15a/THIRD_PARTY_NOTICES.txt',entries.map(e=>e.name+' '+e.version+' ('+e.license+')\n'+e.text).join('\n\n'));
+          fs.writeFileSync('qa-results/sr-hub-15a/notice-register.json',JSON.stringify(entries.map(({text,...e})=>e),null,2)+'\n');
+          console.log('SR_HUB_15A_NOTICE_ASSEMBLY_PASS '+entries.length);
+          JS
+          sha256sum "$out/THIRD_PARTY_NOTICES.txt"
+          echo NOTICE_TEXT_BASE64_BEGIN
+          base64 -w 0 "$out/THIRD_PARTY_NOTICES.txt"; echo
+          echo NOTICE_TEXT_BASE64_END
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SR-HUB-15A-notices-review
+          path: qa-results/sr-hub-15a/
+          if-no-files-found: error

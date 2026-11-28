@@ -1,0 +1,58 @@
+name: SR-HUB-15C permanent notice generation and packaging
+on:
+  push:
+    branches: [build/sr-hub-15a-license-closure-2026-11-27]
+    paths: ['.github/workflows/sr-hub-15c-notice-integration.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Recover verified notices and package unsigned candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          out=qa-results/sr-hub-15c
+          mkdir -p "$out"
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+          cmp web/THIRD_PARTY_NOTICES.txt android/app/src/main/assets/THIRD_PARTY_NOTICES.txt
+          cp web/THIRD_PARTY_NOTICES.txt "$out/THIRD_PARTY_NOTICES.txt"
+          echo 'b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d  '"$out/THIRD_PARTY_NOTICES.txt" | sha256sum -c -
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          (cd android && gradle --no-daemon :app:assembleBetaStaging -PsrBetaStaging=true -PsrBetaVersionCode=1 -PsrBetaVersionName=0.9.80-beta.1)
+          apk="$(find android/app/build/outputs/apk/betaStaging -name '*.apk' -type f | head -n 1)"
+          test -s "$apk"
+          unzip -p "$apk" assets/THIRD_PARTY_NOTICES.txt > "$out/packaged-notices.txt"
+          cmp "$out/THIRD_PARTY_NOTICES.txt" "$out/packaged-notices.txt"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > "$out/badging.txt"
+          grep -F "name='com.playereden.ricochetrumble.beta' versionCode='1' versionName='0.9.80-beta.1'" "$out/badging.txt"
+          if grep -q application-debuggable "$out/badging.txt"; then exit 1; fi
+          if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify "$apk"; then exit 1; fi
+          sha256sum "$apk" "$out/packaged-notices.txt" > "$out/hashes.txt"
+          echo 'SR_HUB_15C_NOTICE_PACKAGE_PASS'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SR-HUB-15C-notice-packaging-evidence
+          path: qa-results/sr-hub-15c/
+          if-no-files-found: warn

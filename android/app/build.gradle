@@ -150,6 +150,17 @@ tasks.register('verifyBundledHybridMenu') {
         }
     }
 }
+// Release distribution must carry the reviewed notice bytes.
+tasks.register('verifyThirdPartyNotices') {
+    doLast {
+        def notice = file('src/main/assets/THIRD_PARTY_NOTICES.txt')
+        if (!notice.isFile()) throw new GradleException('Third-party notices missing: run hybrid-ui build')
+        def digest = java.security.MessageDigest.getInstance('SHA-256').digest(notice.bytes).encodeHex().toString()
+        if (digest != 'b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d')
+            throw new GradleException('Third-party notice fingerprint mismatch')
+    }
+}
 tasks.named('preBuild').configure {
     dependsOn tasks.named('verifyBundledHybridMenu')
+    if (betaStaging == 'true') dependsOn tasks.named('verifyThirdPartyNotices')
 }
