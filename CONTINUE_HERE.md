@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14F:** Native run 46100552081 passed syntax, exact APK hashes, installation and launch, failed matching `^Got it$`; source concatenated label and empty description with trailing space. Normalized matcher b2ef3c3f41f6b311d834290766566591280b9b83; CI preflight executes actual extracted Python matcher against synthetic fullscreen confirmation bounds in d3115cd196efc70d4da422a3af2b21ca887fb7d5. Artifact 15245411569 metadata SHA256 966866f3ee737867a9037889ffbbdb71db6925fe96e3a8f1d847dd645d532fc9; not locally inspected. Runs [{"id":46101230176,"status":"completed","conclusion":"failure"}]. Native interactions still unverified. Limit further harness iteration; if blocked move to independent release gates and physical review. No production changes, signing, merge or publication.
+
+
 > **2026-11-27 SR-HUB-14E:** Corrected native run 46099776575 failed with shell unexpected EOF after exact APK integrity, install and launch passed. Cause verified in source: JS replacement-string dollar/apostrophe expansion duplicated tail and broke quoting. Corrected via explicit slicing f1523b37b85a2149092d3c5684da3a0447437c45; added bash -n preflight in 267089614069108b07804b4cbcdf1c56abe474c3. Artifact 15244273690 metadata SHA256 cb072633a575a069b77fe92d39e1711aff653d12b592e5644fdc324fc93e5e74, not independently downloaded. New runs [{"id":46100552081,"status":"in_progress","conclusion":null}]. Native interactions not reached; no game defect proven. No production changes, signing, merges or publication.
 
 
