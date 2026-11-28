@@ -15,7 +15,47 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate diagnostic shell syntax
-        run: bash -n tools/sr-hub-14c-native-touch.sh
+        run: |
+          bash -n tools/sr-hub-14c-native-touch.sh
+          python3 - <<'PY'
+          import pathlib, subprocess, tempfile
+          s=pathlib.Path('tools/sr-hub-14c-native-touch.sh').read_text()
+          code=s.split("<<'PY'\n",1)[1].split("\nPY\n",1)[0]
+          with tempfile.TemporaryDirectory() as d:
+              p=pathlib.Path(d)/'fixture.xml'
+              p.write_text('<hierarchy><node enabled="true" text="Got it" content-desc="" bounds="[1596,455][1791,587]"/></hierarchy>')
+              assert subprocess.check_output(['python3','-c',code,str(p),'^Got it
+      - name: Recover exact tested disposable review APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/EdenP-Development/Ricochet-Rumble/actions/artifacts/15010503734/zip > "$RUNNER_TEMP/r10.zip"
+          echo 'cc69148dd87fcc8bbbff4dc86ff8dbb3c5ec2fd97910713d96ee39a8aa501f61  '"$RUNNER_TEMP/r10.zip" | sha256sum -c -
+          unzip -p "$RUNNER_TEMP/r10.zip" dist/Sector-Rebound-B1-R10-Consolidated-Review.apk > "$RUNNER_TEMP/r10.apk"
+          echo '702ec203f4ef3769108725adc937b9a2f23c9290bbeda8ac6e3427be2a0c1c05  '"$RUNNER_TEMP/r10.apk" | sha256sum -c -
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          script: timeout 360 bash tools/sr-hub-14c-native-touch.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SR-HUB-14C-NATIVE-TOUCH-DIAGNOSTICS
+          path: qa-results/sr-hub-14c/
+          if-no-files-found: warn
+          retention-days: 14
+],text=True).strip()=='1693 521'
+          print('SR_HUB_14F_LABEL_FIXTURE_PASS')
+          PY
       - name: Recover exact tested disposable review APK
         env:
           GH_TOKEN: ${{ github.token }}
