@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14B:** Source review: equipPaint writes/readbacks localStorage then refreshHangar draws canvas; Practice newMatch calls native stopNetwork when bridge present, initializes no-bot state and deploy audio. Native stopNetwork posts closeNetwork to UI thread. No root cause proven. Draft #184 head caa0be7d23f22a0fd08407621ab75214d74b0c65 tests ordinary browser Moss selection, persistence after reload, Practice mode label/menu and changing canvas during keyboard input at two viewports; no injection or Android rebuild. CI [{"id":46097109357,"status":"in_progress","conclusion":null}]. Browser scope excludes native bridge; next isolate native touch and renderer via ADB, bounded logcat/process evidence. All physical/signing/release gates remain open.
+
+
 > **2026-11-27 SR-HUB-14A:** Authentic capture run 46095758401 PASS 10 ordinary-input browser captures, artifact 15243491739 ZIP SHA256 711c2d0d7304319ffa24ec007277fe2a72a97ddbd9aaa99ba942e57564562e58 expires Dec 12 01:59:19 UTC; downloaded to chat, local byte/visual review not yet established. Draft #183 b2677f459257a850165864afc1ed2246a32cd332 adds 19-item comprehensive R10 physical review matrix, zero physical results, existing exact QA APK only. Practice/Hangar CDP issues, offline/native LAN, real signed upgrade, rights/privacy and durable custody remain open. No signing, merge or publication. Next verify capture bytes and visual shortlist, then resolve technical blockers before consolidated physical review.
 
 
