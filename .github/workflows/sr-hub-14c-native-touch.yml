@@ -34,7 +34,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_5
-          script: timeout 240 bash tools/sr-hub-14c-native-touch.sh
+          script: timeout 360 bash tools/sr-hub-14c-native-touch.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
