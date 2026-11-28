@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-13I:** Offline run 45963585419 cancelled; logs show connected synthetic backup validation advanced successfully, then Practice click Runtime.evaluate timeout; offline/reconnect not reached, cause unproven. Draft #182 head 947a4fbc58c9f005dcbf810e16c1bc0aff293c40 adds unmodified R10 browser capture using actual menu/keyboard actions, two landscape viewports, no injected state, no Android rebuild. CI [{"id":46095758401,"status":"in_progress","conclusion":null}]. Captures require visual review, no physical Android claims. No runtime changes, signing, merge or publication. Next verify capture and prepare consolidated owner test.
+
+
 > **2026-11-27 SR-HUB-13H:** Revised banner favorable owner feedback; existing approved cover retained. Three Lanczos fit promotional derivatives, five PNG export ZIP and manifest locally verified. Register cbdeec2b334320f3e90cf3003196f99ede69609a on draft #181. ZIP SHA256 f449c247c32e0fc2ca5ac7f73572d5c62faac043e6d218c3b922701681cf85ab. Withheld original feature-claim banner excluded. Actual binaries not committed, independent durable archive unconfirmed. Next authentic gameplay capture and consolidated owner test; technical gates remain. No runtime, signing, merge or publication changes.
 
 
