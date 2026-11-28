@@ -19,4 +19,13 @@ const notice=lines.join('\n\n');
 const hash=crypto.createHash('sha256').update(notice).digest('hex');
 assert.equal(hash,'b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d','Notice content changed: review dependencies and licenses before approving new digest');
 for(const dir of ['web','android/app/src/main/assets'])fs.writeFileSync(path.join(root,dir,'THIRD_PARTY_NOTICES.txt'),notice);
+// Embed exact text in the existing Help template at build time; no fetch or new script.
+const escapeHTML=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+for(const dir of ['web','android/app/src/main/assets']){
+ const file=path.join(root,dir,'index.html');
+ const html=fs.readFileSync(file,'utf8');
+ const marker=/(<pre id="third-party-notice-text"[^>]*>)[\s\S]*?(<\/pre>)/g;
+ assert.equal([...html.matchAll(marker)].length,1,'Expected exactly one notice placeholder');
+ fs.writeFileSync(file,html.replace(marker,(_,start,end)=>start+escapeHTML(notice)+end));
+}
 console.log('SR_HUB_15C_NOTICE_GENERATION_PASS '+hash);
