@@ -1,0 +1,75 @@
+name: SR-HUB-17A consolidated disposable review
+on:
+  push:
+    branches: [qa/sr-hub-17a-consolidated-review-2026-11-27]
+    paths: ['.github/workflows/sr-hub-17a-review.yml']
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Verify reviewed runtime and regressions
+        run: |
+          set -euo pipefail
+          git diff --exit-code 986574019c17da544ef659bb3133da9aa77d4afc HEAD -- web android/app/src/main
+          node tests/smoke.mjs
+          node tests/scored-match-kernel.mjs
+          node tests/save-backup.mjs
+          node tests/dossier.mjs
+          node tests/lan-room-state-d3-a0.mjs
+          npm --prefix hybrid-ui ci --ignore-scripts --no-audit --no-fund
+          npm --prefix hybrid-ui run build
+          node tools/verify-hybrid-menu-bundle.mjs
+      - name: Build disposable review with distinct application ID
+        run: |
+          set -euo pipefail
+          sdk="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | head -n 1)"
+          "$sdk" --install "platforms;android-36" "build-tools;35.0.0"
+          # Isolate this disposable build from the previous R10 and real beta identities.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/build.gradle')
+          s=p.read_text()
+          a="if (spudacusStartupQA == 'true') applicationIdSuffix '.spudacusqa'"
+          assert s.count(a)==1
+          p.write_text(s.replace(a,a.replace('.spudacusqa','.review17qa')))
+          PY
+          (cd android && gradle --no-daemon :app:assembleDebug -PsrSpudacusStartupQA=true)
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          bt="$ANDROID_HOME/build-tools/35.0.0"
+          mkdir -p dist-review
+          "$bt/aapt" dump badging "$apk" > dist-review/badging.txt
+          grep -F "name='com.playereden.ricochetrumble.review17qa' versionCode='50'" dist-review/badging.txt
+          grep -F application-debuggable dist-review/badging.txt
+          "$bt/apksigner" verify --print-certs "$apk" > dist-review/signer.txt
+          for name in game.js index.html style.css scored-match.js dossier.js save-backup.js THIRD_PARTY_NOTICES.txt; do
+            cmp "web/$name" <(unzip -p "$apk" "assets/$name")
+          done
+          echo 'b305550572976a487eeea8474bedc12dfa74c3ff8212497fe4517bd6f68cb66d  web/THIRD_PARTY_NOTICES.txt' | sha256sum -c -
+          node tools/verify-hybrid-menu-bundle.mjs --apk="$apk"
+          cp "$apk" dist-review/Sector-Rebound-17A-DISPOSABLE-REVIEW.apk
+          sha256sum dist-review/Sector-Rebound-17A-DISPOSABLE-REVIEW.apk > dist-review/SHA256SUMS
+          printf 'SOURCE_SHA=%s\nAPP_ID=com.playereden.ricochetrumble.review17qa\nBUILD_PATCH=temporary isolated debug package suffix\nSIGNER=DISPOSABLE_DEBUG\nPUBLIC_BETA=NO\nUPDATE_COMPATIBILITY=NOT_PROMISED\n' "$GITHUB_SHA" > dist-review/verification.txt
+          echo 'SR_HUB_17A_REVIEW_BUILD_PASS'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sector-Rebound-17A-DISPOSABLE-REVIEW
+          path: dist-review/
+          if-no-files-found: error
+          retention-days: 14
