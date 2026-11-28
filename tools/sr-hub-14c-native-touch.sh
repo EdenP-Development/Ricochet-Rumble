@@ -44,7 +44,42 @@ PY
  timeout 10 adb shell input tap "$x" "$y"
  sleep 3
 }
-capture home
+capture startup
+# Only acknowledge the exact Android immersive confirmation, never arbitrary dialogs.
+if python3 - "$out/startup.xml" <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).iter('node'))
+assert any(n.get('package')=='android' and n.get('resource-id')=='android:id/immersive_cling_title' and n.get('text')=='Viewing full screen' for n in nodes)
+assert any(n.get('package')=='android' and n.get('resource-id')=='android:id/ok' and n.get('text')=='Got it' for n in nodes)
+PY
+then
+  tap startup '^Got it 'Customize Solo paint and insignia|^HANGAR$'
+capture hangar
+tap hangar 'MOSS.*AVAILABLE|^MOSS$'
+capture moss
+grep -qi 'EQUIPPED.*MOSS\|MOSS.*PREVIEW' "$out/moss.xml"
+tap moss 'BACK'
+capture home-return
+tap home-return 'CHOOSE MODE'
+capture modes
+tap modes 'PRACTICE'
+capture practice
+grep -qi 'PRACTICE FIELD' "$out/practice.xml"
+echo 'SR_HUB_14C_NATIVE_TOUCH_PASS visible Moss and Practice labels; physical gameplay not established'
+
+  echo 'SR_HUB_14D_IMMERSIVE_PROMPT_ACKNOWLEDGED'
+fi
+# Wait for the real Home control; keep every attempt as diagnostic evidence.
+for attempt in 1 2 3 4; do
+  capture "home-$attempt"
+  if grep -qi 'Customize Solo paint and insignia\|HANGAR' "$out/home-$attempt.xml"; then
+    cp "$out/home-$attempt.xml" "$out/home.xml"
+    cp "$out/home-$attempt.png" "$out/home.png"
+    break
+  fi
+  sleep 3
+done
+test -s "$out/home.xml"
 tap home 'Customize Solo paint and insignia|^HANGAR$'
 capture hangar
 tap hangar 'MOSS.*AVAILABLE|^MOSS$'
