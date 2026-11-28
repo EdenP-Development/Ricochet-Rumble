@@ -25,6 +25,6 @@ jobs:
       - name: Verify unchanged runtime and signing gates
         run: |
           set -euo pipefail
-          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          git diff --exit-code 986574019c17da544ef659bb3133da9aa77d4afc HEAD -- web android/app/src/main
           bash -n tools/sign-sector-rebound-beta-review.sh
           python3 tests/sr-hub-06-signing-fixture.py
