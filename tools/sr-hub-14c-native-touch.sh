@@ -53,20 +53,7 @@ assert any(n.get('package')=='android' and n.get('resource-id')=='android:id/imm
 assert any(n.get('package')=='android' and n.get('resource-id')=='android:id/ok' and n.get('text')=='Got it' for n in nodes)
 PY
 then
-  tap startup '^Got it 'Customize Solo paint and insignia|^HANGAR$'
-capture hangar
-tap hangar 'MOSS.*AVAILABLE|^MOSS$'
-capture moss
-grep -qi 'EQUIPPED.*MOSS\|MOSS.*PREVIEW' "$out/moss.xml"
-tap moss 'BACK'
-capture home-return
-tap home-return 'CHOOSE MODE'
-capture modes
-tap modes 'PRACTICE'
-capture practice
-grep -qi 'PRACTICE FIELD' "$out/practice.xml"
-echo 'SR_HUB_14C_NATIVE_TOUCH_PASS visible Moss and Practice labels; physical gameplay not established'
-
+  tap startup '^Got it$'
   echo 'SR_HUB_14D_IMMERSIVE_PROMPT_ACKNOWLEDGED'
 fi
 # Wait for the real Home control; keep every attempt as diagnostic evidence.
