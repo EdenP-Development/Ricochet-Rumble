@@ -1,0 +1,5 @@
+# SR-HUB-14D — Native diagnostic recovery
+
+Run 46097714792 failed before Hangar interaction. Exact archive and APK hash checks, installation and MainActivity launch passed. Artifact 15243299855 ZIP locally verified SHA256 b2e2fe5dbd4bc3a734a6b53a1c26fdc32bcfaa63a96299d75cd48161f33e2b1b. Inspected home.png and home.xml: Android immersive onboarding overlay, title `Viewing full screen`, package `android`, resource `android:id/immersive_cling_title`, confirmation `android:id/ok` text `Got it`, bounds [1596,455][1791,587] in landscape 2340x1080. No game controls exposed in this tree. This establishes immediate diagnostic obstruction, not cause of prior CDP failures or proof of game reliability.
+
+Harness correction 0ff865150eb15a0b477b8201dd87458b34561cc4 checks both exact system nodes before acknowledging via native tap, then bounded Home readiness attempts. Timeout update 195b97c8928998161846b5db622f2fc6f14a5f7c. New runs at check: [{"id":46099776575,"status":"in_progress","conclusion":null}]. No application changes. Native Hangar/Practice, offline, physical and release gates still pending.
