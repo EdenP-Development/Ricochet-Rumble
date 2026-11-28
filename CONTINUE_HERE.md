@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-14C:** Browser isolation 46097109357 PASS both 1280x720 and 915x412, Moss persisted after reload, Practice launched/canvas changed, six captures artifact 15243707250 ZIP SHA256 80fe455d1a554b9ae509b819f33b68119c95a38889ba88ff7b68533717780c25. Native diagnostic head edf334f212394f34e0520fb5446277b92ea2cc5f on draft #184 uses exact historical R10 APK from original archive, verifies both hashes, no rebuild or CDP, native accessibility-derived touch coordinates, bounded screen/XML/PID/logcat/activity evidence. Runs []. Accessibility tree availability not proven; missing nodes cannot establish app defect. No offline/native traffic/physical acceptance or signing claims. No runtime changes, merge or publication.
+
+
 > **2026-11-27 SR-HUB-14B:** Source review: equipPaint writes/readbacks localStorage then refreshHangar draws canvas; Practice newMatch calls native stopNetwork when bridge present, initializes no-bot state and deploy audio. Native stopNetwork posts closeNetwork to UI thread. No root cause proven. Draft #184 head caa0be7d23f22a0fd08407621ab75214d74b0c65 tests ordinary browser Moss selection, persistence after reload, Practice mode label/menu and changing canvas during keyboard input at two viewports; no injection or Android rebuild. CI [{"id":46097109357,"status":"in_progress","conclusion":null}]. Browser scope excludes native bridge; next isolate native touch and renderer via ADB, bounded logcat/process evidence. All physical/signing/release gates remain open.
 
 
