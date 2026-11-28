@@ -1,5 +1,8 @@
 # Sector Rebound — CONTINUE HERE
 
+> **2026-11-27 SR-HUB-15A:** Recovered matching LICENSE.md from omgovich/colord and pixijs/colord at exact registry gitHead 5344fbf77b736f81cd33c21050021bc09bc9dd1d. MIT, copyright 2020 Vlad Shilov. Preserved upstream text in draft #185 commit 2b83309383cf8441b424cb1765cf69c8b26821ea; CI ed74ec11422d8f397603ced4b91c6ce3b3e545e7 verifies raw upstream equality and assembles six locked bundled dependency notices; runs [{"id":46101663532,"status":"in_progress","conclusion":null},{"id":46101662430,"status":"completed","conclusion":"failure"}]. Notice delivery in exact APK, full rights and distribution clearance remain pending. Native diagnostic remains deferred/unverified. No dependency upgrades, production changes, signing, merges or publication.
+
+
 > **2026-11-27 SR-HUB-14F:** Native run 46100552081 passed syntax, exact APK hashes, installation and launch, failed matching `^Got it$`; source concatenated label and empty description with trailing space. Normalized matcher b2ef3c3f41f6b311d834290766566591280b9b83; CI preflight executes actual extracted Python matcher against synthetic fullscreen confirmation bounds in d3115cd196efc70d4da422a3af2b21ca887fb7d5. Artifact 15245411569 metadata SHA256 966866f3ee737867a9037889ffbbdb71db6925fe96e3a8f1d847dd645d532fc9; not locally inspected. Runs [{"id":46101230176,"status":"completed","conclusion":"failure"}]. Native interactions still unverified. Limit further harness iteration; if blocked move to independent release gates and physical review. No production changes, signing, merge or publication.
 
 
