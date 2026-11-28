@@ -1,0 +1,34 @@
+name: SR-HUB-13I authentic browser captures
+on:
+  push:
+    branches: [qa/sr-hub-13i-authentic-capture-2026-11-27]
+    paths: ['.github/workflows/sr-hub-13i-authentic-capture.yml','tests/sr-hub-13i-authentic-capture.mjs']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Capture original runtime
+        run: |
+          set -euo pipefail
+          git diff --exit-code 80cd22b35b9bb285751ef82e69e1d63f3551edfe HEAD -- web android/app/src/main
+          npm install --no-save --ignore-scripts --no-audit playwright-core@1.56.1
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          node tests/sr-hub-13i-authentic-capture.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SR-HUB-13I-UNREVIEWED-BROWSER-CAPTURES
+          path: qa-results/sr-hub-13i/
+          if-no-files-found: warn
+          retention-days: 14
